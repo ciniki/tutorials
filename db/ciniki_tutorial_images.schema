@@ -28,7 +28,7 @@
 #
 # description:		The description for the image.
 #
-# date_added:		The UTC date and time the image was added to the event.
+# date_added:		The UTC date and time the image was added to the tutorial.
 # last_updated:		The UTC date and time the image was last updated.
 #
 create table ciniki_tutorial_images (

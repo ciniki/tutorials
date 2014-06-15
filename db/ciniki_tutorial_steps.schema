@@ -11,7 +11,8 @@
 # business_id:		The business the tutorial is attached to.
 #
 # tutorial_id:		The ID of the tutorial.
-# step:				The name for the tutorial.
+# sequence:			The order of the step.
+# title:			The name for the tutorial.
 #
 # description:		The longer text description of the tutorial (optional).
 #
@@ -22,6 +23,8 @@ create table ciniki_tutorial_steps (
 	id int not null auto_increment,
 	uuid char(36) not null,
 	business_id int not null,
+	tutorial_id int not null,
+	sequence tinyint unsigned not null,
 	title varchar(150) not null,
 	description varchar(20000) not null,
 	date_added datetime not null,

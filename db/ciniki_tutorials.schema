@@ -6,11 +6,11 @@
 #
 # Fields
 # ------
-# id:				The ID assigned to the event.
+# id:				The ID assigned to the tutorial.
 # uuid:				The Universal Unique ID.
-# business_id:		The business the event is attached to.
+# business_id:		The business the tutorial is attached to.
 #
-# name:				The name for the event.
+# name:				The name for the tutorial.
 # permalink: 		The permalink for the tutorial on the website
 #
 # synopsis:			The short description for listings.
