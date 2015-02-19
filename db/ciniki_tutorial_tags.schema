@@ -16,8 +16,8 @@
 #	
 #					0 - unknown
 #					10 - Category 
-#					20 - Tag
-#					30 - Module	(If the tutorial is for a ciniki module)
+#					20 - Tag **future**
+#					30 - Module	(If the tutorial is for a ciniki module) **future**
 #
 # tag_name:			The name of the tag, list or category.
 #

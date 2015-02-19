@@ -1,8 +1,8 @@
 #
 # Description
 # -----------
-# The tutorials table stores information about tutorials.  This module 
-# was designed to be like a wiki how or instructionables site.
+# The content(image&description) are stored in step_content so they can be reused easily and not
+# need to update many tutorials for the same change.
 #
 # Fields
 # ------
@@ -11,10 +11,8 @@
 # business_id:		The business the tutorial is attached to.
 #
 # tutorial_id:		The ID of the tutorial.
+# step_content_id:	The ID of the step content.
 # sequence:			The order of the step.
-# title:			The name for the tutorial.
-#
-# description:		The longer text description of the tutorial (optional).
 #
 # date_added:		The UTC date and time the record was added.
 # last_updated:		The UTC date and time the record was last updated.
@@ -24,9 +22,8 @@ create table ciniki_tutorial_steps (
 	uuid char(36) not null,
 	business_id int not null,
 	tutorial_id int not null,
+	step_content_id int not null,
 	sequence tinyint unsigned not null,
-	title varchar(150) not null,
-	description varchar(20000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),

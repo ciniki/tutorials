@@ -13,15 +13,17 @@ function ciniki_tutorials_objects($ciniki) {
 	
 	$objects = array();
 	$objects['tutorial'] = array(
-		'name'=>'Tutorials',
+		'name'=>'Tutorial',
 		'sync'=>'yes',
 		'table'=>'ciniki_tutorials',
 		'fields'=>array(
-			'name'=>array(),
+			'title'=>array(),
 			'permalink'=>array(),
-			'synopsis'=>array(),
-			'description'=>array(),
+			'flags'=>array(),
 			'primary_image_id'=>array('ref'=>'ciniki.images.image'),
+			'synopsis'=>array(),
+			'content'=>array(),
+			'webflags'=>array(),
 			),
 		'history_table'=>'ciniki_tutorial_history',
 		);
@@ -31,25 +33,32 @@ function ciniki_tutorials_objects($ciniki) {
 		'table'=>'ciniki_tutorial_steps',
 		'fields'=>array(
 			'tutorial_id'=>array('ref'=>'ciniki.tutorials.tutorial'),
+			'step_content_id'=>array('ref'=>'ciniki.tutorials.step_content'),
 			'sequence'=>array(),
-			'title'=>array(),
-			'description'=>array(),
 			),
 		'history_table'=>'ciniki_tutorial_history',
 		);
-	$objects['image'] = array(
-		'name'=>'Image',
+	$objects['step_content'] = array(
+		'name'=>'Tutorial Step Content',
 		'sync'=>'yes',
-		'table'=>'ciniki_tutorial_images',
+		'table'=>'ciniki_tutorial_step_content',
+		'fields'=>array(
+			'code'=>array(),
+			'title'=>array(),
+			'image_id'=>array(),
+			'content'=>array(),
+			),
+		'history_table'=>'ciniki_tutorial_history',
+		);
+	$objects['tag'] = array(
+		'name'=>'Tag',
+		'sync'=>'yes',
+		'table'=>'ciniki_tutorial_tags',
 		'fields'=>array(
 			'tutorial_id'=>array('ref'=>'ciniki.tutorials.tutorial'),
-			'step_id'=>array('ref'=>'ciniki.tutorials.step'),
-			'name'=>array(),
+			'tag_type'=>array(),
+			'tag_name'=>array(),
 			'permalink'=>array(),
-			'sequence'=>array(),
-			'webflags'=>array(),
-			'image_id'=>array('ref'=>'ciniki.images.image'),
-			'description'=>array(),
 			),
 		'history_table'=>'ciniki_tutorial_history',
 		);
