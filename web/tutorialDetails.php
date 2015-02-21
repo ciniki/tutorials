@@ -17,6 +17,7 @@ function ciniki_tutorials_web_tutorialDetails($ciniki, $settings, $business_id, 
 	}
 
 	$strsql = "SELECT ciniki_tutorials.id, "
+		. "ciniki_tutorial_steps.id AS step_id, "
 		. "ciniki_tutorials.title, "
 		. "ciniki_tutorials.permalink, "
 		. "ciniki_tutorials.synopsis, "
@@ -40,13 +41,13 @@ function ciniki_tutorials_web_tutorialDetails($ciniki, $settings, $business_id, 
 		. "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND ciniki_tutorials.permalink = '" . ciniki_core_dbQuote($ciniki, $permalink) . "' "
 		. "AND (ciniki_tutorials.webflags&0x01) = 1 "
-		. "ORDER BY ciniki_tutorial_steps.sequence, ciniki_tutorial_step_content.title "
+		. "ORDER BY ciniki_tutorial_steps.tutorial_id, ciniki_tutorial_steps.sequence, ciniki_tutorial_step_content.title "
 		. "";
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 	$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.artclub', array(
 		array('container'=>'tutorials', 'fname'=>'id', 
 			'fields'=>array('id', 'title', 'permalink', 'primary_image_id', 'synopsis', 'content', 'is_details')),
-		array('container'=>'steps', 'fname'=>'image_id', 
+		array('container'=>'steps', 'fname'=>'step_id', 
 			'fields'=>array('image_id', 'title'=>'step_title', 
 				'description'=>'step_content', 
 				'last_updated'=>'step_last_updated')),
