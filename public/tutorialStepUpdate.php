@@ -78,7 +78,7 @@ function ciniki_tutorials_tutorialStepUpdate(&$ciniki) {
 			. "FROM ciniki_tutorial_step_content "
 			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND code = '" . ciniki_core_dbQuote($ciniki, $args['code']) . "' "
-			. "AND step_content_id <> '" . ciniki_core_dbQuote($ciniki, $args['step_content_id']) . "' "
+			. "AND id <> '" . ciniki_core_dbQuote($ciniki, $args['step_content_id']) . "' "
 			. "";
 		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'items');
 		if( $rc['stat'] != 'ok' ) {	
