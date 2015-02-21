@@ -76,6 +76,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 		if( isset($args['steps']) && $args['steps'] == 'yes' ) {
 			$strsql = "SELECT ciniki_tutorial_steps.id, "
 				. "ciniki_tutorial_steps.sequence, "
+				. "ciniki_tutorial_step_content.code, "
 				. "ciniki_tutorial_step_content.title "
 				. "FROM ciniki_tutorial_steps "
 				. "LEFT JOIN ciniki_tutorial_step_content ON ("
@@ -88,7 +89,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 				. "";
 			$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
 				array('container'=>'steps', 'fname'=>'id', 'name'=>'step',
-					'fields'=>array('id', 'sequence', 'title')),
+					'fields'=>array('id', 'sequence', 'code', 'title')),
 					));
 			if( $rc['stat'] != 'ok' ) {
 				return $rc;

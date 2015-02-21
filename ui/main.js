@@ -91,6 +91,7 @@ function ciniki_tutorials_main() {
 				'content':{'label':'', 'type':'textarea', 'size':'large', 'hidelabel':'yes'},
 			}},
 			'steps':{'label':'Steps', 'type':'simplegrid', 'num_cols':1,
+				'cellClasses':['multiline'],
 				'addTxt':'Add Step',
 				'addFn':'M.ciniki_tutorials_main.stepEdit(\'M.ciniki_tutorials_main.refreshSteps();\',0,M.ciniki_tutorials_main.tutorial.tutorial_id);',
 				},
@@ -118,6 +119,9 @@ function ciniki_tutorials_main() {
 			return true;
 		};
 		this.tutorial.cellValue = function(s, i, j, d) {
+			if( (M.curBusiness.modules['ciniki.tutorials'].flags&0x01) > 0 ) {
+				return '<span class="maintext">' + d.step.title + '</span><span class="subtext">' + d.step.code + '</span>';
+			}
 			return d.step.title;
 		};
 		this.tutorial.rowFn = function(s, i, d) {
