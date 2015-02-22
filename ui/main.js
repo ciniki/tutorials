@@ -79,6 +79,7 @@ function ciniki_tutorials_main() {
 			}},
 			'details':{'label':'', 'aside':'yes', 'fields':{
 				'title':{'label':'Title', 'type':'text'},
+				'sequence':{'label':'Order', 'type':'text'},
 				'webflags_1':{'label':'Published', 'type':'flagtoggle', 'bit':0x01, 'field':'webflags', 'default':'on'},
 			}},	
 			'_categories':{'label':'Categories', 'aside':'yes', 'active':'no', 'fields':{
@@ -120,7 +121,7 @@ function ciniki_tutorials_main() {
 		};
 		this.tutorial.cellValue = function(s, i, j, d) {
 			if( (M.curBusiness.modules['ciniki.tutorials'].flags&0x01) > 0 ) {
-				return '<span class="maintext">' + d.step.title + '</span><span class="subtext">' + d.step.code + '</span>';
+				return '<span class="maintext">' + d.step.number + ': ' + d.step.title + '</span><span class="subtext">' + d.step.code + '</span>';
 			}
 			return d.step.title;
 		};

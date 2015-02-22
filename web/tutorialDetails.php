@@ -56,7 +56,7 @@ function ciniki_tutorials_web_tutorialDetails($ciniki, $settings, $business_id, 
 		return $rc;
 	}
 	if( !isset($rc['tutorials']) || count($rc['tutorials']) < 1 ) {
-		return array('stat'=>'404', 'err'=>array('pkg'=>'ciniki', 'code'=>'2255', 'msg'=>"I'm sorry, but we can't find the tutorial you requested."));
+		return array('stat'=>'404', 'err'=>array('pkg'=>'ciniki', 'code'=>'2245', 'msg'=>"I'm sorry, but we can't find the tutorial you requested."));
 	}
 	$tutorial = array_pop($rc['tutorials']);
 

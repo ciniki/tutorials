@@ -51,7 +51,7 @@ function ciniki_tutorials_tutorialDelete(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2215', 'msg'=>'The tutorial does not exist'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2242', 'msg'=>'The tutorial does not exist'));
 	}
 	$item = $rc['item'];
 

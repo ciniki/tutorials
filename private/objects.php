@@ -19,6 +19,7 @@ function ciniki_tutorials_objects($ciniki) {
 		'fields'=>array(
 			'title'=>array(),
 			'permalink'=>array(),
+			'sequence'=>array(),
 			'flags'=>array(),
 			'primary_image_id'=>array('ref'=>'ciniki.images.image'),
 			'synopsis'=>array(),

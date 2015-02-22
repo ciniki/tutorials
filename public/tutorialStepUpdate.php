@@ -56,7 +56,7 @@ function ciniki_tutorials_tutorialStepUpdate(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2202', 'msg'=>'Step not found'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2248', 'msg'=>'Step not found'));
 	}
 	$item = $rc['item'];
 
@@ -85,7 +85,7 @@ function ciniki_tutorials_tutorialStepUpdate(&$ciniki) {
 			return $rc;
 		}
 		if( isset($rc['num_rows']) && $rc['num_rows'] > 0 ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2252', 'msg'=>'The code already exists.'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2247', 'msg'=>'The code already exists.'));
 		}
 	}
 

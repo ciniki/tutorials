@@ -41,7 +41,9 @@ function ciniki_tutorials_tutorialList($ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
 
 	if( isset($args['category']) && $args['category'] != '' ) {
-		$strsql = "SELECT ciniki_tutorials.id, ciniki_tutorials.title "	
+		$strsql = "SELECT ciniki_tutorials.id, "
+			. "ciniki_tutorials.sequence, "
+			. "ciniki_tutorials.title "	
 			. "FROM ciniki_tutorial_tags "
 			. "LEFT JOIN ciniki_tutorials ON ("
 				. "ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
@@ -50,10 +52,13 @@ function ciniki_tutorials_tutorialList($ciniki) {
 			. "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND ciniki_tutorial_tags.tag_type = 10 "
 			. "AND ciniki_tutorial_tags.permalink = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' "
-			. "ORDER BY ciniki_tutorials.title "
+			. "ORDER BY ciniki_tutorials.sequence, ciniki_tutorials.title "
 			. "";
 	} else {
-		$strsql = "SELECT ciniki_tutorials.id, ciniki_tutorials.title, tag_name "	
+		$strsql = "SELECT ciniki_tutorials.id, "
+			. "ciniki_tutorials.sequence, "
+			. "ciniki_tutorials.title, "
+			. "ciniki_tutorial_tags.tag_name "	
 			. "FROM ciniki_tutorials "
 			. "LEFT JOIN ciniki_tutorial_tags ON ("
 				. "ciniki_tutorials.id = ciniki_tutorial_tags.tutorial_id "
@@ -61,7 +66,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 				. ") "
 			. "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "HAVING ISNULL(tag_name) "
-			. "ORDER BY title "
+			. "ORDER BY ciniki_tutorials.sequence, title "
 			. "";
 	}
 	if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
@@ -70,7 +75,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
 		array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
-			'fields'=>array('id', 'title')),
+			'fields'=>array('id', 'title', 'sequence')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;

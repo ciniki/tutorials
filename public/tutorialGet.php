@@ -49,6 +49,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 		$strsql = "SELECT ciniki_tutorials.id, "
 			. "ciniki_tutorials.title, "
 			. "ciniki_tutorials.permalink, "
+			. "ciniki_tutorials.sequence, "
 			. "ciniki_tutorials.flags, "
 			. "ciniki_tutorials.primary_image_id, "
 			. "ciniki_tutorials.synopsis, "
@@ -61,7 +62,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
 			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
-				'fields'=>array('id', 
+				'fields'=>array('id', 'sequence',
 					'title', 'permalink', 'flags', 'primary_image_id', 
 					'synopsis', 'content', 'webflags')),
 			));
@@ -99,6 +100,12 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 			} else {
 				$tutorial['steps'] = array();
 			}
+			$num_steps = 0;
+			foreach($tutorial['steps'] as $sid => $step) {
+				$num_steps++;
+				$tutorial['steps'][$sid]['step']['number'] = $num_steps;
+			}
+			$tutorial['num_steps'] = $num_steps;
 		}
 		//
 		// Get the categories and tags for the post

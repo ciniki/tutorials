@@ -23,6 +23,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
         'tutorial_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tutorial'), 
         'title'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Title'), 
         'permalink'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Permalink'), 
+        'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sequence'), 
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Flags'), 
         'primary_image_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Image'), 
 		'synopsis'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Synopsis'),
@@ -58,7 +59,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2202', 'msg'=>'Tutorial not found'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2243', 'msg'=>'Tutorial not found'));
 	}
 	$item = $rc['item'];
 
@@ -79,7 +80,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
 			return $rc;
 		}
 		if( $rc['num_rows'] > 0 ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2203', 'msg'=>'You already have tutorial with this title, please choose another title.'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2244', 'msg'=>'You already have tutorial with this title, please choose another title.'));
 		}
 	}
 
