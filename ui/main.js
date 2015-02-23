@@ -94,7 +94,7 @@ function ciniki_tutorials_main() {
 			'steps':{'label':'Steps', 'type':'simplegrid', 'num_cols':1,
 				'cellClasses':['multiline'],
 				'addTxt':'Add Step',
-				'addFn':'M.ciniki_tutorials_main.stepEdit(\'M.ciniki_tutorials_main.refreshSteps();\',0,M.ciniki_tutorials_main.tutorial.tutorial_id);',
+				'addFn':'M.ciniki_tutorials_main.stepEdit(\'M.ciniki_tutorials_main.refreshSteps();\',0,M.ciniki_tutorials_main.tutorial.tutorial_id,[]);',
 				},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_tutorials_main.tutorialSave();'},
@@ -126,7 +126,7 @@ function ciniki_tutorials_main() {
 			return d.step.title;
 		};
 		this.tutorial.rowFn = function(s, i, d) {
-			return 'M.ciniki_tutorials_main.stepEdit(\'M.ciniki_tutorials_main.refreshSteps();\',\'' + d.step.id + '\');';
+			return 'M.ciniki_tutorials_main.stepEdit(\'M.ciniki_tutorials_main.refreshSteps();\',\'' + d.step.id + '\',null,M.ciniki_tutorials_main.tutorial.data.steps);';
 		};
 		this.tutorial.addButton('save', 'Save', 'M.ciniki_tutorials_main.tutorialSave();');
 		this.tutorial.addClose('Cancel');
@@ -140,6 +140,7 @@ function ciniki_tutorials_main() {
 		this.step.data = null;
 		this.step.step_content_id = 0;
 		this.step.tutorial_id = 0;
+		this.step.prevnext = {'prev_id':-1, 'next_id':-1, 'list':[]};
 		this.step.sections = {
 			'_image':{'label':'Image', 'aside':'yes', 'fields':{
 				'image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no', 'controls':'all'},
@@ -202,8 +203,22 @@ function ciniki_tutorials_main() {
 				return 'M.ciniki_tutorials_main.stepUpdateContent(\'' + s + '\',\'' + f + '\',\'' + d.result.id + '\');';
 			}
 		};
+		this.step.prevButtonFn = function() {
+			if( this.prevnext.prev_id > -1 ) {
+				return 'M.ciniki_tutorials_main.stepSave(\'' + this.prevnext.prev_id + '\');';
+			}
+			return null;
+		};
+		this.step.nextButtonFn = function() {
+			if( this.prevnext.next_id > -1 ) {
+				return 'M.ciniki_tutorials_main.stepSave(\'' + this.prevnext.next_id + '\');';
+			}
+			return null;
+		};
 		this.step.addButton('save', 'Save', 'M.ciniki_tutorials_main.stepSave();');
+		this.step.addButton('next', 'Next');
 		this.step.addClose('Cancel');
+		this.step.addLeftButton('prev', 'Prev');
 	}
 
 	this.start = function(cb, appPrefix, aG) {
@@ -350,8 +365,9 @@ function ciniki_tutorials_main() {
 		}
 	};
 
-	this.stepEdit = function(cb, sid, tid) {
+	this.stepEdit = function(cb, sid, tid, list) {
 		if( sid != null ) { this.step.step_id = sid; }
+		if( list != null ) { this.step.prevnext.list = list; }
 		if( M.ciniki_tutorials_main.tutorial.tutorial_id == 0 ) {
 			var c = this.tutorial.serializeForm('yes');
 			M.api.postJSONFormData('ciniki.tutorials.tutorialAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
@@ -377,6 +393,21 @@ function ciniki_tutorials_main() {
 				var p = M.ciniki_tutorials_main.step;
 				p.data = rsp.step;
 				p.step_content_id = rsp.step.step_content_id;
+				// Setup prev/next buttons
+				p.prevnext.prev_id = -1;
+				p.prevnext.next_id = -1;
+				if( p.prevnext.list != null ) {
+					for(i in p.prevnext.list) {
+						if( p.prevnext.next_id == -2 ) {
+							p.prevnext.next_id = p.prevnext.list[i].step.id;
+							break;
+						} else if( p.prevnext.list[i].step.id == p.step_id ) {
+							p.prevnext.next_id = -2;
+						} else {
+							p.prevnext.prev_id = p.prevnext.list[i].step.id;
+						}
+					}
+				}
 				p.refresh();
 				p.show(cb);
 			});
@@ -421,7 +452,7 @@ function ciniki_tutorials_main() {
 		this.step.removeLiveSearch(s, f);
 	};
 
-	this.stepSave = function() {
+	this.stepSave = function(pnid) {
 		// Check form values
 		var nv = this.step.formFieldValue(this.step.sections.details.fields.title, 'title');
 		if( nv != this.step.fieldValue('details', 'title') && nv == '' ) {
@@ -438,10 +469,10 @@ function ciniki_tutorials_main() {
 							M.api.err(rsp);
 							return false;
 						} 
-						M.ciniki_tutorials_main.step.close();
+						(pnid!=null&&pnid>-1)?M.ciniki_tutorials_main.stepEdit(null,pnid):M.ciniki_tutorials_main.step.close();
 					});
 			} else {
-				this.step.close();
+				(pnid!=null&&pnid>-1)?M.ciniki_tutorials_main.stepEdit(null,pnid):this.step.close();
 			}
 		} else {
 			var c = this.step.serializeForm('yes');
