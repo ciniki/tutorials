@@ -19,7 +19,7 @@ function ciniki_tutorials_main() {
 			'categories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
 				},
 			'options':{'label':'Options', 'aside':'yes', 'list':{
-				'export':{'label':'Export', 'fn':'M.ciniki_tutorials_main.exportShow();'},
+				'export':{'label':'Export', 'fn':'M.ciniki_tutorials_main.exportShow(\'M.ciniki_tutorials_main.showMenu();\');'},
 				}},
 			'tutorials':{'label':'Tutorials', 'visible':'yes', 'type':'simplegrid', 'num_cols':1,
 				'addTxt':'Add Tutorial',
@@ -229,8 +229,8 @@ function ciniki_tutorials_main() {
 		// The export/share panel
 		//
 		this.export = new M.panel('Tutorials',
-			'ciniki_tutorials_main', 'menu',
-			'mc', 'medium', 'sectioned', 'ciniki.tutorials.main.menu');
+			'ciniki_tutorials_main', 'export',
+			'mc', 'medium', 'sectioned', 'ciniki.tutorials.main.export');
 		this.export.data = {};
 		this.export.category = '';
 		this.export.sections = {};
