@@ -20,6 +20,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
+        'allcategories'=>array('required'=>'no', 'blank'=>'no', 'name'=>'All Categories'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         'categories'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Categories'), 
         )); 
@@ -39,6 +40,50 @@ function ciniki_tutorials_tutorialList($ciniki) {
     }   
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
+
+	if( isset($args['allcategories']) && $args['allcategories'] == 'yes' ) {
+		$strsql = "SELECT ciniki_tutorials.id, "
+			. "ciniki_tutorials.title, "
+			. "ciniki_tutorials.permalink, "
+			. "ciniki_tutorials.sequence, "
+			. "ciniki_tutorials.primary_image_id, "
+			. "ciniki_tutorials.synopsis, "
+			. "IFNULL(ciniki_tutorial_tags.tag_name, ' ') AS category, "
+			. "'yes' AS is_details, "
+			. "IFNULL(ciniki_tutorial_settings.detail_value, '99') AS cat_sequence "
+			. "FROM ciniki_tutorials "
+			. "LEFT JOIN ciniki_tutorial_tags ON ("
+				. "ciniki_tutorials.id = ciniki_tutorial_tags.tutorial_id "
+				. "AND ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. "AND ciniki_tutorial_tags.tag_type = '10' "
+				. ") "
+			. "LEFT JOIN ciniki_tutorial_settings ON ("
+				. "ciniki_tutorial_settings.detail_key = CONCAT('category-sequence-', ciniki_tutorial_tags.permalink) "
+				. "AND ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. "AND ciniki_tutorial_tags.tag_type = '10' "
+				. ") "
+			. "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND (ciniki_tutorials.webflags&0x01) = 0x01 "
+			. "ORDER BY cat_sequence, category, ciniki_tutorials.sequence, ciniki_tutorials.title "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'categories', 'fname'=>'category', 'name'=>'category',
+				'fields'=>array('name'=>'category')),
+			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
+				'fields'=>array('id', 'title', 'sequence')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$rsp = array('stat'=>'ok');
+		if( !isset($rc['categories']) ) {
+			$rsp['categories'] = array();
+		} else {
+			$rsp['categories'] = $rc['categories'];
+		}
+		return $rsp;
+	}
 
 	if( isset($args['category']) && $args['category'] != '' ) {
 		$strsql = "SELECT ciniki_tutorials.id, "

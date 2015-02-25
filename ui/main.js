@@ -5,6 +5,7 @@ function ciniki_tutorials_main() {
 	this.webFlags = {
 		'1':{'name':'Visible'},
 		};
+	this.toggleOptions = {'include':'Include'};
 	this.init = function() {
 		//
 		// Setup the main panel to list the collection
@@ -17,12 +18,16 @@ function ciniki_tutorials_main() {
 		this.menu.sections = {
 			'categories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
 				},
+			'options':{'label':'Options', 'aside':'yes', 'list':{
+				'export':{'label':'Export', 'fn':'M.ciniki_tutorials_main.exportShow();'},
+				}},
 			'tutorials':{'label':'Tutorials', 'visible':'yes', 'type':'simplegrid', 'num_cols':1,
 				'addTxt':'Add Tutorial',
 				'addFn':'M.ciniki_tutorials_main.tutorialEdit(\'M.ciniki_tutorials_main.showMenu();\',0,M.ciniki_tutorials_main.menu.category);',
 				},
 			};
 		this.menu.sectionData = function(s) { 
+			if( s == 'options' ) { return this.sections[s].list; }
 			return this.data[s];
 		};
 		this.menu.cellValue = function(s, i, j, d) {
@@ -219,6 +224,20 @@ function ciniki_tutorials_main() {
 		this.step.addButton('next', 'Next');
 		this.step.addClose('Cancel');
 		this.step.addLeftButton('prev', 'Prev');
+
+		//
+		// The export/share panel
+		//
+		this.export = new M.panel('Tutorials',
+			'ciniki_tutorials_main', 'menu',
+			'mc', 'medium', 'sectioned', 'ciniki.tutorials.main.menu');
+		this.export.data = {};
+		this.export.category = '';
+		this.export.sections = {};
+		this.export.fieldValue = function(s, i, d) {
+			return this.data[i];
+		};
+		this.export.addClose('Back');
 	}
 
 	this.start = function(cb, appPrefix, aG) {
@@ -500,5 +519,62 @@ function ciniki_tutorials_main() {
 					M.ciniki_tutorials_main.step.close();
 				});
 		}
+	};
+
+	this.exportShow = function(cb) {
+		this.export.sections = {
+			'details':{'label':'Export', 'fields':{
+				'layout':{'label':'Layout', 'type':'select', 'default':'single', 'options':{'single':'Single', 'half':'Half', 'double':'Double', 'quad':'Quad'}},
+				'coverpage':{'label':'Cover Page', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
+				'title':{'label':'Title', 'type':'text'},
+				}},
+		};
+		M.api.getJSONCb('ciniki.tutorials.tutorialList', 
+			{'business_id':M.curBusinessID, 'allcategories':'yes'}, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				var p = M.ciniki_tutorials_main.export;
+				p.data = rsp;
+				if( rsp.categories != null ) {
+					for(var i in rsp.categories) {
+						p.sections['_' + i] = {'label':rsp.categories[i].category.name,
+							'fields':{}};
+						if( rsp.categories[i].category.tutorials != null ) {
+							for(var j in rsp.categories[i].category.tutorials) {
+								var t = rsp.categories[i].category.tutorials[j].tutorial;
+								p.sections['_'+i].fields[t.id] = {'label':t.title, 'type':'toggle', 'none':'yes', 'toggles':{'include':'Yes'}};
+							}
+						}
+					}
+				}
+				p.sections['_buttons'] = {'label':'', 'buttons':{
+					'export':{'label':'Export', 'fn':'M.ciniki_tutorials_main.exportPDF();'},
+					}};
+				p.refresh();
+				p.show(cb);
+			});
+	};
+
+	this.exportPDF = function() {
+		var args = {'business_id':M.curBusinessID, 'output':'pdf'};
+		args['layout'] = this.export.formValue('layout');
+		args['coverpage'] = this.export.formValue('coverpage');
+		args['title'] = this.export.formValue('title');
+		var tutorials = '';
+		for(var i in this.export.sections) {
+			if( i.match(/_[0-9]/) ) {
+				for(var j in this.export.sections[i].fields) {
+					if( this.export.formValue(j) == 'include' ) {
+						tutorials += ',' + j;
+					}
+				}
+			}
+		}
+		if( tutorials != '' ) {
+			args['tutorials'] = tutorials.substring(1); // remove first comma
+		}
+		M.api.openPDF('ciniki.tutorials.downloadPDF', args);
 	};
 }
