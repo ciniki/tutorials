@@ -544,7 +544,7 @@ function ciniki_tutorials_main() {
 						if( rsp.categories[i].category.tutorials != null ) {
 							for(var j in rsp.categories[i].category.tutorials) {
 								var t = rsp.categories[i].category.tutorials[j].tutorial;
-								p.sections['_'+i].fields[t.id] = {'label':t.title, 'type':'toggle', 'none':'yes', 'toggles':{'include':'Yes'}};
+								p.sections['_'+i].fields['_'+t.id] = {'label':t.title, 'id':t.id, 'type':'toggle', 'none':'yes', 'toggles':{'include':'Yes'}};
 							}
 						}
 					}
@@ -567,7 +567,7 @@ function ciniki_tutorials_main() {
 			if( i.match(/_[0-9]/) ) {
 				for(var j in this.export.sections[i].fields) {
 					if( this.export.formValue(j) == 'include' ) {
-						tutorials += ',' + j;
+						tutorials += ',' + this.export.sections[i].fields[j].id;
 					}
 				}
 			}
