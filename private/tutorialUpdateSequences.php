@@ -54,7 +54,7 @@ function ciniki_tutorials_tutorialUpdateSequences($ciniki, $business_id, $tutori
 					ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
 				}
 				ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.tutorials', 
-					'ciniki_tutorials_history', $business_id, 
+					'ciniki_tutorial_history', $business_id, 
 					2, 'ciniki_tutorial_steps', $seq['id'], 'sequence', $cur_number);
 				$ciniki['syncqueue'][] = array('push'=>'ciniki.tutorials.step', 
 					'args'=>array('id'=>$seq['id']));
