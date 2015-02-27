@@ -89,7 +89,7 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
 	//
 	if( $args['layout'] != 'single' 
 //		&& $args['layout'] != 'half' 
-//		&& $args['layout'] != 'double' 
+		&& $args['layout'] != 'double' 
 //		&& $args['layout'] != 'quad' 
 		) {
 		return array('stat'=>'404', 'err'=>array('pkg'=>'ciniki', 'code'=>'2261', 'msg'=>"That tutorial is not available in the format you requested."));
