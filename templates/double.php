@@ -64,7 +64,7 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 			// Position at 15 mm from bottom
 			// Set font
 			if( $this->pagenumbers == 'yes' ) {
-				$this->SetY(-10);
+				$this->SetY(-15);
 				$this->SetFont('helvetica', 'I', 8);
 				$this->Cell(0, 8, $this->footer_text . '  --  Page ' . $this->pageNo().'/'.$this->getAliasNbPages(), 
 					0, false, 'C', 0, '', 0, false, 'T', 'M');
@@ -86,20 +86,13 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 				$details_height += 10;
 			}
 			if( $page['content'] != '' ) {
-//				$nlines += $this->getNumLines($page['content'], ($this->getPageWidth()/2) - $this->middle_margin - $this->right_margin);
 				$content = preg_split("/\n\s*\n/m", $page['content']);
 				foreach($content as $cnt) {
 					$details_height += $this->getStringHeight($img_box_width, $cnt);
-					$details_height += 3;
+					$details_height += 1;
 				}
 			}
-
-//			error_log('nlines:' . $nlines);
-//			error_log('Height:' . $this->getPageHeight());
-//			$details_height += 0 + ($nlines * 9);
 			$img_box_height -= ($details_height);
-//			error_log('Height:' . $details_height);
-//			error_log('Height:' . $img_box_height);
 
 			//
 			// Add the image title
@@ -118,7 +111,7 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 					$this->SetX($offset);
 					$this->SetFont('', '', '12');
 					$this->MultiCell($img_box_width, 5, $cnt, 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T');
-					$this->Ln(3);
+					$this->Ln(2);
 				}
 			}
 			$this->Ln(2);
@@ -170,11 +163,11 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 	$pdf->SetKeywords('');
 
 	// set margins
-	$pdf->header_height = 25;
-	$pdf->footer_height = 5;
-	$pdf->top_margin = 10;
-	$pdf->left_margin = 8;
-	$pdf->right_margin = 8;
+	$pdf->header_height = 28;
+	$pdf->footer_height = 10;
+	$pdf->top_margin = 15;
+	$pdf->left_margin = 12;
+	$pdf->right_margin = 12;
 	$pdf->middle_margin = 5;
 	$pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
 	$pdf->SetHeaderMargin($pdf->top_margin);
