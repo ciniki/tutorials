@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_templates_single($ciniki, $business_id, $tutorials, $args) {
+function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $args) {
 
 	require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/tcpdf/tcpdf.php');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheOriginal');
@@ -49,9 +49,14 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $tutorials, $a
 		public $pagenumbers = 'yes';
 		public $footer_height = 0;
 		public $header_height = 0;
+		public $footer_text = '';
 		public function Header() {
 			$this->SetFont('helvetica', 'B', 20);
-			$this->Cell(0, 20, $this->title, 0, false, 'C', 0, '', 0, false, 'M', 'B');
+			$this->SetLineWidth(0.25);
+			$this->SetDrawColor(125);
+			$this->setCellPaddings(5,1,5,2);
+			$this->Cell(0, 22, $this->title, 'B', false, 'C', 0, '', 0, false, 'M', 'B');
+			$this->setCellPaddings(0,0,0,0);
 		}
 
 		// Page footer
@@ -59,58 +64,71 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $tutorials, $a
 			// Position at 15 mm from bottom
 			// Set font
 			if( $this->pagenumbers == 'yes' ) {
-				$this->SetY(-15);
+				$this->SetY(-10);
 				$this->SetFont('helvetica', 'I', 8);
-				$this->Cell(0, 10, 'Page ' . $this->pageNo().'/'.$this->getAliasNbPages(), 
+				$this->Cell(0, 8, $this->footer_text . '  --  Page ' . $this->pageNo().'/'.$this->getAliasNbPages(), 
 					0, false, 'C', 0, '', 0, false, 'T', 'M');
 			}
 		}
 
-		public function AddMyPage($ciniki, $business_id, $title, $image_id, $subtitle, $content) {
-			// Add a page
-			$this->title = $title;
-			$this->AddPage();
-			$this->SetFillColor(255);
-			$this->SetTextColor(0);
-			$this->SetDrawColor(51);
-			$this->SetLineWidth(0.15);
-		
+		public function AddSubPage($ciniki, $business_id, $offset, $page) {
 			//
 			// Calculate how many lines are required at the bottom of the page
 			//
+			$this->SetY($this->header_height);
 			$nlines = 0;
 			$details_height = 0;
-			if( $subtitle != '' ) {
-				$details_height += 12;
+			$img_box_width = ($this->getPageWidth()/2) - $this->middle_margin - $this->right_margin;
+			$img_box_height = $this->getPageHeight() - $this->top_margin - $this->footer_height - $this->header_height;
+			if( $page['subtitle'] != '' ) {
+				$details_height += 14;
+			} else {
+				$details_height += 10;
 			}
-			if( $content != '' ) {
-				$nlines += $this->getNumLines($content, 180);
+			if( $page['content'] != '' ) {
+//				$nlines += $this->getNumLines($page['content'], ($this->getPageWidth()/2) - $this->middle_margin - $this->right_margin);
+				$content = preg_split("/\n\s*\n/m", $page['content']);
+				foreach($content as $cnt) {
+					$details_height += $this->getStringHeight($img_box_width, $cnt);
+					$details_height += 3;
+				}
 			}
 
-			$img_box_width = 180;
-			$img_box_height = $this->getPageHeight() - $this->footer_height - $this->header_height;
-			$details_height += 0 + ($nlines * 6);
+//			error_log('nlines:' . $nlines);
+//			error_log('Height:' . $this->getPageHeight());
+//			$details_height += 0 + ($nlines * 9);
 			$img_box_height -= ($details_height);
+//			error_log('Height:' . $details_height);
+//			error_log('Height:' . $img_box_height);
 
 			//
 			// Add the image title
 			//
-			if( $subtitle != '' ) {
+			if( $page['subtitle'] != '' ) {
+				$this->SetX($offset);
 				$this->SetFont('', 'B', '16');
-				$this->Cell(180, 12, $subtitle, 0, 1, 'L');
+				$this->Cell($img_box_width, 10, $page['subtitle'], 0, 1, 'L');
+				$this->Ln(1);
+			} else {
+				$this->Ln(3);
 			}
-		
-			if( $content != '' ) {
-				$this->SetFont('', '', '12');
-				$this->MultiCell(180, 8, $content, 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T');
+	
+			if( $page['content'] != '' ) {
+				foreach($content as $cnt) {
+					$this->SetX($offset);
+					$this->SetFont('', '', '12');
+					$this->MultiCell($img_box_width, 5, $cnt, 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T');
+					$this->Ln(3);
+				}
 			}
-			$this->Ln(6);
+			$this->Ln(2);
 
 			//
 			// Load the image
 			//
-			if( $image_id > 0 ) {
-				$rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $image_id, 2000, 2000);
+			if( $page['image_id'] > 0 ) {
+				$this->SetX($offset);
+				$rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $page['image_id'], 2000, 2000);
 				if( $rc['stat'] == 'ok' ) {
 					$image = $rc['image'];
 					$this->SetLineWidth(0.25);
@@ -119,28 +137,50 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $tutorials, $a
 				}
 			}
 		}
+
+		public function AddMyPage($ciniki, $business_id, $title, $page1, $page2) {
+			// Add a page
+			$this->title = $title;
+			$this->AddPage('L');
+			$this->SetFillColor(255);
+			$this->SetTextColor(0);
+			$this->SetDrawColor(51);
+			$this->SetLineWidth(0.15);
+	
+			$this->AddSubPage($ciniki, $business_id, $this->left_margin, $page1);
+			if( $page2 != NULL) {
+				$this->AddSubPage($ciniki, $business_id, $this->middle_margin + ($this->getPageWidth()/2), $page2);
+			}
+		}
 	}
 
 	//
 	// Start a new document
 	//
-	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+	$pdf = new MYPDF('L', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
 
 	$pdf->title = $args['title'];
 
 	// Set PDF basics
 	$pdf->SetCreator('Ciniki');
 	$pdf->SetAuthor($business_details['name']);
+	$pdf->footer_text = $business_details['name'];
 	$pdf->SetTitle($args['title']);
 	$pdf->SetSubject('');
 	$pdf->SetKeywords('');
 
 	// set margins
 	$pdf->header_height = 25;
-	$pdf->footer_height = 15;
-	$pdf->SetMargins(PDF_MARGIN_LEFT, $pdf->header_height, PDF_MARGIN_RIGHT);
-	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-	$pdf->SetFooterMargin($pdf->footer_height);
+	$pdf->footer_height = 5;
+	$pdf->top_margin = 10;
+	$pdf->left_margin = 8;
+	$pdf->right_margin = 8;
+	$pdf->middle_margin = 5;
+	$pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
+	$pdf->SetHeaderMargin($pdf->top_margin);
+//	$pdf->SetFooterMargin($pdf->footer_height);
+	$pdf->setPageOrientation('L', false);
+	$pdf->SetFooterMargin(0);
 
 	// Set font
 	$pdf->SetFont('times', 'BI', 10);
@@ -156,13 +196,23 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $tutorials, $a
 		// 
 		// Add introduction to tutorial
 		//
-		$pdf->AddMyPage($ciniki, $business_id, $tutorial['title'], $tutorial['image_id'], '', strip_tags($tutorial['content']));
+		$prev = array('image_id'=>$tutorial['image_id'], 'subtitle'=>'', 'content'=>strip_tags($tutorial['content']));
 
 		$step_num = 1;
 		foreach($tutorial['steps'] as $sid => $step) {
-			$pdf->AddMyPage($ciniki, $business_id, $tutorial['title'], $step['image_id'], 'Step ' . $step_num . ' - ' . $step['title'], strip_tags($step['content']));
+			$step['number'] = $step_num;
+			if( $prev == NULL ) {
+				$prev = array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content']));
+			} else {
+				$pdf->AddMyPage($ciniki, $business_id, $tutorial['title'], $prev, 
+					array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content'])));
+				$prev = NULL;
+			}
 			$page_num++;
 			$step_num++;
+		}
+		if( $prev != NULL ) {
+			$pdf->AddMyPage($ciniki, $business_id, $tutorial['title'], $prev, NULL);
 		}
 	}
 
