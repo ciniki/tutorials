@@ -75,13 +75,13 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
 		return $rc;
 	}
 	if( !isset($rc['tutorials']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2259', 'msg'=>'Unable to find tutorials'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2032', 'msg'=>'Unable to find tutorials'));
 	} else {
 		$tutorials = $rc['tutorials'];
 	}
 
 	if( count($tutorials) < 1 ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2260', 'msg'=>'Unable to find tutorials'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2031', 'msg'=>'Unable to find tutorials'));
 	}
 
 	//
