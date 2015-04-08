@@ -22,6 +22,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 		'tutorial_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tutorial'),
 		'steps'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Steps'),
         'categories'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Categories'), 
+        'groups'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Groups'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -127,6 +128,8 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 			foreach($rc['tags'] as $tags) {
 				if( $tags['tags']['tag_type'] == 10 ) {
 					$tutorial['categories'] = $tags['tags']['lists'];
+				} elseif( $tags['tags']['tag_type'] == 40 ) {
+					$tutorial['groups'] = $tags['tags']['lists'];
 				}
 			}
 		}
@@ -158,6 +161,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 				. "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 				. ") "
 			. "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_tutorial_tags.tag_type = '10' "
 			. "GROUP BY tag_name "
 			. "ORDER BY tag_name "
 			. "";
@@ -173,6 +177,35 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 			$rsp['categories'] = array();
 		} else {
 			$rsp['categories'] = $rc['categories'];
+		}
+	}
+
+	if( isset($args['groups']) && $args['groups'] == 'yes' ) {
+		$strsql = "SELECT ciniki_tutorial_tags.tag_name, "
+			. "ciniki_tutorial_tags.permalink, "
+			. "COUNT(ciniki_tutorials.id) AS num_tutorials "
+			. "FROM ciniki_tutorial_tags "
+			. "LEFT JOIN ciniki_tutorials ON ("
+				. "ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
+				. "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. ") "
+			. "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_tutorial_tags.tag_type = '40' "
+			. "GROUP BY tag_name "
+			. "ORDER BY tag_name "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'groups', 'fname'=>'tag_name', 'name'=>'group',
+				'fields'=>array('name'=>'tag_name', 'permalink', 'num_tutorials')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['groups']) ) {
+			$rsp['groups'] = array();
+		} else {
+			$rsp['groups'] = $rc['groups'];
 		}
 	}
 

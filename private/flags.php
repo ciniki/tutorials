@@ -15,7 +15,7 @@ function ciniki_tutorials_flags($ciniki, $modules) {
 		// 0x01
 		array('flag'=>array('bit'=>'1', 'name'=>'Codes')),
 		array('flag'=>array('bit'=>'2', 'name'=>'Categories')),
-//		array('flag'=>array('bit'=>'3', 'name'=>'')),
+		array('flag'=>array('bit'=>'3', 'name'=>'Groups')),
 //		array('flag'=>array('bit'=>'4', 'name'=>'')),
 		// 0x10
 //		array('flag'=>array('bit'=>'5', 'name'=>'Categories')),

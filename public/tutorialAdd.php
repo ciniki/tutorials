@@ -26,6 +26,7 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
         'content'=>array('required'=>'no', 'default'=>'', 'blank'=>'yes', 'name'=>'Content'), 
         'webflags'=>array('required'=>'no', 'default'=>'0', 'blank'=>'yes', 'name'=>'Web Flags'), 
 		'categories'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'list', 'delimiter'=>'::', 'name'=>'Categories'),
+		'groups'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'list', 'delimiter'=>'::', 'name'=>'Groups'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -93,6 +94,20 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
 		$rc = ciniki_core_tagsUpdate($ciniki, 'ciniki.tutorials', 'tag', $args['business_id'],
 			'ciniki_tutorial_tags', 'ciniki_tutorial_history',
 			'tutorial_id', $tutorial_id, 10, $args['categories']);
+		if( $rc['stat'] != 'ok' ) {
+			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
+			return $rc;
+		}
+	}
+
+	//
+	// Update the groups
+	//
+	if( isset($args['groups']) ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'tagsUpdate');
+		$rc = ciniki_core_tagsUpdate($ciniki, 'ciniki.tutorials', 'tag', $args['business_id'],
+			'ciniki_tutorial_tags', 'ciniki_tutorial_history',
+			'tutorial_id', $tutorial_id, 40, $args['groups']);
 		if( $rc['stat'] != 'ok' ) {
 			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
 			return $rc;

@@ -16,12 +16,15 @@ function ciniki_tutorials_main() {
 		this.menu.data = {};
 		this.menu.category = '';
 		this.menu.sections = {
+			'groups':{'label':'Groups', 'visible':'no', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
+				},
 			'categories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
 				},
 			'options':{'label':'Options', 'aside':'yes', 'list':{
 				'export':{'label':'Export', 'fn':'M.ciniki_tutorials_main.exportShow(\'M.ciniki_tutorials_main.showMenu();\');'},
 				}},
 			'tutorials':{'label':'Tutorials', 'visible':'yes', 'type':'simplegrid', 'num_cols':1,
+				'cellClasses':['multiline'],
 				'addTxt':'Add Tutorial',
 				'addFn':'M.ciniki_tutorials_main.tutorialEdit(\'M.ciniki_tutorials_main.showMenu();\',0,M.ciniki_tutorials_main.menu.category);',
 				},
@@ -31,15 +34,19 @@ function ciniki_tutorials_main() {
 			return this.data[s];
 		};
 		this.menu.cellValue = function(s, i, j, d) {
-			if( s == 'categories' ) {
+			if( s == 'groups' ) {
+				return d.group.name;
+			} else if( s == 'categories' ) {
 				return d.category.name;
 			} else if( s == 'tutorials' ) {
-				return d.tutorial.title;
+				return '<span class="maintext">' + d.tutorial.title + '</span><span class="subtext">' + d.tutorial.tags + '</span>';
 			}
 		};
 		this.menu.rowFn = function(s, i, d) {
-			if( s == 'categories' ) {
-				return 'M.ciniki_tutorials_main.showMenu(null,\'' + escape(d.category.name) + '\',\'' + d.category.permalink + '\');';
+			if( s == 'groups' ) {
+				return 'M.ciniki_tutorials_main.showMenu(null,\'' + escape(d.group.name) + '\',\'\',\'' + d.group.permalink + '\');';
+			} else if( s == 'categories' ) {
+				return 'M.ciniki_tutorials_main.showMenu(null,\'' + escape(d.category.name) + '\',\'' + d.category.permalink + '\',\'\');';
 			} else if( s == 'tutorials' ) {
 				return 'M.ciniki_tutorials_main.tutorialEdit(\'M.ciniki_tutorials_main.showMenu();\',\'' + d.tutorial.id + '\');';
 			}
@@ -71,6 +78,28 @@ function ciniki_tutorials_main() {
 		this.category.addClose('Cancel');
 
 		//
+		// The panel to edit a group
+		//
+		this.group = new M.panel('Group',
+			'ciniki_tutorials_main', 'group',
+			'mc', 'medium', 'sectioned', 'ciniki.tutorials.main.group');
+		this.group.data = null;
+		this.group.permalink = 0;
+		this.group.sections = {
+			'details':{'label':'', 'fields':{
+				'sequence':{'label':'Sequence', 'type':'text'},
+			}},	
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_tutorials_main.groupSave();'},
+			}},
+		};
+		this.group.fieldValue = function(s, i, d) {
+			return this.data[i];
+		};
+		this.group.addButton('save', 'Save', 'M.ciniki_tutorials_main.groupSave();');
+		this.group.addClose('Cancel');
+
+		//
 		// Display information about a tutorial
 		//
 		this.tutorial = new M.panel('Tutorial',
@@ -84,9 +113,13 @@ function ciniki_tutorials_main() {
 			}},
 			'details':{'label':'', 'aside':'yes', 'fields':{
 				'title':{'label':'Title', 'type':'text'},
+				'permalink':{'label':'Permalink', 'active':'no', 'type':'text'},
 				'sequence':{'label':'Order', 'type':'text'},
 				'webflags_1':{'label':'Published', 'type':'flagtoggle', 'bit':0x01, 'field':'webflags', 'default':'on'},
 			}},	
+			'_groups':{'label':'Groups', 'aside':'yes', 'active':'no', 'fields':{
+				'groups':{'label':'', 'hidelabel':'yes', 'type':'tags', 'tags':[], 'hint':'Enter a new group:'},
+			}},
 			'_categories':{'label':'Categories', 'aside':'yes', 'active':'no', 'fields':{
 				'categories':{'label':'', 'hidelabel':'yes', 'type':'tags', 'tags':[], 'hint':'Enter a new category:'},
 			}},
@@ -253,32 +286,57 @@ function ciniki_tutorials_main() {
 			return false;
 		}
 
+		//
+		// Determine what is visible
+		//
+		this.menu.sections.groups.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+		this.menu.sections.categories.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
+		this.tutorial.sections._groups.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
 		this.tutorial.sections._categories.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
+		this.tutorial.sections.details.fields.permalink.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
 		this.step.sections.details.fields.code.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x01)>0?'yes':'no';
 
 		this.menu.category = '';
-		this.showMenu(cb, 'Tutorials', '');
+		this.menu.group = '';
+		this.showMenu(cb, 'Tutorials', '', '');
 	}
 
-	this.showMenu = function(cb, title, category) {
-		if( title != null ) { this.menu.sections.tutorials.label = unescape(title); }
-		if( category != null ) { this.menu.category = category; }
+	this.showMenu = function(cb, title, category, group) {
+		if( title != null && title != '' ) { this.menu.sections.tutorials.label = unescape(title); }
+		if( category != null ) { 
+			this.menu.category = category; 
+			if( category != '' ) {
+				this.menu.addButton('edit', 'Edit', 'M.ciniki_tutorials_main.categoryEdit(\'M.ciniki_tutorials_main.showMenu();\',M.ciniki_tutorials_main.menu.category);');
+			}
+		}
+		if( group != null ) { 
+			this.menu.group = group; 
+			if( group != '' ) {
+				this.menu.addButton('edit', 'Edit', 'M.ciniki_tutorials_main.groupEdit(\'M.ciniki_tutorials_main.showMenu();\',M.ciniki_tutorials_main.menu.group);');
+			}
+		}
 		M.api.getJSONCb('ciniki.tutorials.tutorialList', 
-			{'business_id':M.curBusinessID, 'category':this.menu.category, 'categories':'yes'}, function(rsp) {
+			{'business_id':M.curBusinessID, 'category':this.menu.category, 'group':this.menu.group, 'categories':'yes', 'groups':'yes'}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
 				}
 				var p = M.ciniki_tutorials_main.menu;
 				p.data = rsp;
+				p.size = 'medium';
+				p.sections.categories.visible = 'no';
+				p.sections.categories.aside = 'no';
+				p.sections.groups.visible = 'no';
+				p.sections.groups.aside = 'no';
 				if( rsp.categories != null && rsp.categories.length > 0 ) {
 					p.size = 'medium narrowaside';
 					p.sections.categories.visible = 'yes';
 					p.sections.categories.aside = 'yes';
-				} else {
-					p.size = 'medium';
-					p.sections.categories.visible = 'no';
-					p.sections.categories.aside = 'no';
+				}
+				if( rsp.groups != null && rsp.groups.length > 0 ) {
+					p.size = 'medium narrowaside';
+					p.sections.groups.visible = 'yes';
+					p.sections.groups.aside = 'yes';
 				}
 				p.refresh();
 				p.show(cb);
@@ -316,10 +374,41 @@ function ciniki_tutorials_main() {
 		}
 	};
 
+	this.groupEdit = function(cb, group) {
+		if( group != null ) { this.group.permalink = group; }
+		M.api.getJSONCb('ciniki.tutorials.groupDetails', {'business_id':M.curBusinessID,
+			'group':this.group.permalink}, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				var p = M.ciniki_tutorials_main.group;
+				p.data = rsp.details;
+				p.refresh();
+				p.show(cb);
+			});
+	};
+
+	this.groupSave = function() {
+		var c = this.group.serializeForm('no');
+		if( c != '' ) {
+			M.api.postJSONCb('ciniki.tutorials.groupUpdate', 
+				{'business_id':M.curBusinessID, 'group':this.group.permalink}, c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					} 
+					M.ciniki_tutorials_main.group.close();
+				});
+		} else {
+			M.ciniki_tutorials_main.group.close();
+		}
+	};
+
 	this.tutorialEdit = function(cb, tid, category) {
 		if( tid != null ) { this.tutorial.tutorial_id = tid; }
 		M.api.getJSONCb('ciniki.tutorials.tutorialGet', 
-			{'business_id':M.curBusinessID, 'tutorial_id':this.tutorial.tutorial_id, 'categories':'yes', 'steps':'yes'}, function(rsp) {
+			{'business_id':M.curBusinessID, 'tutorial_id':this.tutorial.tutorial_id, 'categories':'yes', 'groups':'yes', 'steps':'yes'}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
@@ -330,6 +419,12 @@ function ciniki_tutorials_main() {
 				if( rsp.categories != null ) {
 					for(i in rsp.categories) {
 						p.sections._categories.fields.categories.tags.push(rsp.categories[i].category.name);
+					}
+				}
+				p.sections._groups.fields.groups.tags = [];
+				if( rsp.groups != null ) {
+					for(i in rsp.groups) {
+						p.sections._groups.fields.groups.tags.push(rsp.groups[i].group.name);
 					}
 				}
 				p.refresh();
@@ -346,6 +441,9 @@ function ciniki_tutorials_main() {
 		}
 		if( this.tutorial.tutorial_id > 0 ) {
 			var c = this.tutorial.serializeForm('no');
+			if( this.tutorial.sections.details.fields.permalink.active == 'yes' && this.tutorial.formValue('title') != this.tutorial.data.title ) {
+				c += '&permalink=' + encodeURIComponent(this.tutorial.formValue('permalink'));
+			}
 			if( c != '' ) {
 				M.api.postJSONFormData('ciniki.tutorials.tutorialUpdate', {'business_id':M.curBusinessID, 
 					'tutorial_id':this.tutorial.tutorial_id}, c, function(rsp) {

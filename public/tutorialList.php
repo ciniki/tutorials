@@ -20,9 +20,11 @@ function ciniki_tutorials_tutorialList($ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
+		'group'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Group'),
         'allcategories'=>array('required'=>'no', 'blank'=>'no', 'name'=>'All Categories'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         'categories'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Categories'), 
+        'groups'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Groups'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -88,18 +90,71 @@ function ciniki_tutorials_tutorialList($ciniki) {
 	if( isset($args['category']) && $args['category'] != '' ) {
 		$strsql = "SELECT ciniki_tutorials.id, "
 			. "ciniki_tutorials.sequence, "
-			. "ciniki_tutorials.title "	
-			. "FROM ciniki_tutorial_tags "
+			. "ciniki_tutorials.title, "	
+			. "IFNULL(t2.tag_name, '') AS tags "
+			. "FROM ciniki_tutorial_tags AS t1 "
 			. "LEFT JOIN ciniki_tutorials ON ("
-				. "ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
+				. "t1.tutorial_id = ciniki_tutorials.id "
 				. "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 				. ") "
-			. "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "AND ciniki_tutorial_tags.tag_type = 10 "
-			. "AND ciniki_tutorial_tags.permalink = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' "
+			. "LEFT JOIN ciniki_tutorial_tags AS t2 ON ("
+				. "ciniki_tutorials.id = t2.tutorial_id "
+				. "AND t2.tag_type = 40 "
+				. "AND t2.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. ") "
+			. "WHERE t1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND t1.tag_type = 10 "
+			. "AND t1.permalink = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' "
 			. "ORDER BY ciniki_tutorials.sequence, ciniki_tutorials.title "
 			. "";
-	} else {
+		if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
+			$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
+		}
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
+				'fields'=>array('id', 'title', 'sequence', 'tags'),
+				'dlists'=>array('tags'=>', ')),
+			));
+	} 
+	
+	elseif( isset($args['group']) && $args['group'] != '' ) {
+		$strsql = "SELECT ciniki_tutorials.id, "
+			. "ciniki_tutorials.sequence, "
+			. "ciniki_tutorials.title, "	
+			. "IFNULL(t2.tag_name, '') AS tags, "
+			. "IFNULL(ciniki_tutorial_settings.detail_value, 99) AS catsequence "
+			. "FROM ciniki_tutorial_tags AS t1 "
+			. "LEFT JOIN ciniki_tutorials ON ("
+				. "t1.tutorial_id = ciniki_tutorials.id "
+				. "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. ") "
+			. "LEFT JOIN ciniki_tutorial_tags AS t2 ON ("
+				. "ciniki_tutorials.id = t2.tutorial_id "
+				. "AND t2.tag_type = 10 "
+				. "AND t2.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. ") "
+			. "LEFT JOIN ciniki_tutorial_settings ON ("
+				. "CONCAT_WS('-', 'category', 'sequence', t2.permalink) = ciniki_tutorial_settings.detail_key "
+				. "AND ciniki_tutorial_settings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. ") "
+			. "WHERE t1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND t1.tag_type = 40 "
+			. "AND t1.permalink = '" . ciniki_core_dbQuote($ciniki, $args['group']) . "' "
+			. "ORDER BY catsequence, ciniki_tutorials.sequence, ciniki_tutorials.title "
+			. "";
+		if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
+			$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
+		}
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
+				'fields'=>array('id', 'title', 'sequence', 'tags'),
+				'dlists'=>array('tags'=>', ')),
+			));
+	} 
+	
+	else {
 		$strsql = "SELECT ciniki_tutorials.id, "
 			. "ciniki_tutorials.sequence, "
 			. "ciniki_tutorials.title, "
@@ -113,15 +168,16 @@ function ciniki_tutorials_tutorialList($ciniki) {
 			. "HAVING ISNULL(tag_name) "
 			. "ORDER BY ciniki_tutorials.sequence, title "
 			. "";
+		if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
+			$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
+		}
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
+				'fields'=>array('id', 'title', 'sequence')),
+			));
 	}
-	if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
-		$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
-	}
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
-		array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
-			'fields'=>array('id', 'title', 'sequence')),
-		));
+
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
@@ -145,6 +201,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 				. "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 				. ") "
 			. "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_tutorial_tags.tag_type = '10' "
 			. "GROUP BY tag_name "
 			. "ORDER BY tag_name "
 			. "";
@@ -160,6 +217,38 @@ function ciniki_tutorials_tutorialList($ciniki) {
 			$rsp['categories'] = array();
 		} else {
 			$rsp['categories'] = $rc['categories'];
+		}
+	}
+
+	//
+	// Check if we should return groups as well
+	//
+	if( isset($args['groups']) && $args['groups'] == 'yes' ) {
+		$strsql = "SELECT ciniki_tutorial_tags.tag_name, "
+			. "ciniki_tutorial_tags.permalink, "
+			. "COUNT(ciniki_tutorials.id) AS num_tutorials "
+			. "FROM ciniki_tutorial_tags "
+			. "LEFT JOIN ciniki_tutorials ON ("
+				. "ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
+				. "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. ") "
+			. "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_tutorial_tags.tag_type = '40' "
+			. "GROUP BY tag_name "
+			. "ORDER BY tag_name "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'groups', 'fname'=>'tag_name', 'name'=>'group',
+				'fields'=>array('name'=>'tag_name', 'permalink', 'num_tutorials')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['groups']) ) {
+			$rsp['groups'] = array();
+		} else {
+			$rsp['groups'] = $rc['groups'];
 		}
 	}
 

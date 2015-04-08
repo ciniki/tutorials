@@ -18,6 +18,7 @@
 #					10 - Category 
 #					20 - Tag **future**
 #					30 - Module	(If the tutorial is for a ciniki module) **future**
+#					40 - Grouping, Used to organize tutorials with tabs on website
 #
 # tag_name:			The name of the tag, list or category.
 #
