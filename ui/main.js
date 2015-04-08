@@ -86,15 +86,29 @@ function ciniki_tutorials_main() {
 		this.group.data = null;
 		this.group.permalink = 0;
 		this.group.sections = {
+			'_image':{'label':'Image', 'aside':'yes', 'fields':{
+				'image':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no', 'controls':'all'},
+			}},
 			'details':{'label':'', 'fields':{
 				'sequence':{'label':'Sequence', 'type':'text'},
 			}},	
+			'_content':{'label':'Content', 'type':'simpleform', 'fields':{
+				'content':{'label':'', 'type':'textarea', 'size':'large', 'hidelabel':'yes'},
+			}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_tutorials_main.groupSave();'},
 			}},
 		};
 		this.group.fieldValue = function(s, i, d) {
 			return this.data[i];
+		};
+		this.group.addDropImage = function(iid) {
+			M.ciniki_tutorials_main.group.setFieldValue('image', iid, null, null);
+			return true;
+		};
+		this.group.deleteImage = function() {
+			this.setFieldValue('image', 0, null, null);
+			return true;
 		};
 		this.group.addButton('save', 'Save', 'M.ciniki_tutorials_main.groupSave();');
 		this.group.addClose('Cancel');
@@ -113,7 +127,7 @@ function ciniki_tutorials_main() {
 			}},
 			'details':{'label':'', 'aside':'yes', 'fields':{
 				'title':{'label':'Title', 'type':'text'},
-				'permalink':{'label':'Permalink', 'active':'no', 'type':'text'},
+//				'permalink':{'label':'Permalink', 'active':'no', 'type':'text'},
 				'sequence':{'label':'Order', 'type':'text'},
 				'webflags_1':{'label':'Published', 'type':'flagtoggle', 'bit':0x01, 'field':'webflags', 'default':'on'},
 			}},	
@@ -293,7 +307,7 @@ function ciniki_tutorials_main() {
 		this.menu.sections.categories.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
 		this.tutorial.sections._groups.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
 		this.tutorial.sections._categories.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
-		this.tutorial.sections.details.fields.permalink.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+//		this.tutorial.sections.details.fields.permalink.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
 		this.step.sections.details.fields.code.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x01)>0?'yes':'no';
 
 		this.menu.category = '';
@@ -345,8 +359,8 @@ function ciniki_tutorials_main() {
 
 	this.categoryEdit = function(cb, category) {
 		if( category != null ) { this.category.permalink = category; }
-		M.api.getJSONCb('ciniki.tutorials.categoryDetails', {'business_id':M.curBusinessID,
-			'category':this.category.permalink}, function(rsp) {
+		M.api.getJSONCb('ciniki.tutorials.tagDetails', {'business_id':M.curBusinessID, 'tag_type':'10',
+			'tag':this.category.permalink}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
@@ -361,8 +375,8 @@ function ciniki_tutorials_main() {
 	this.categorySave = function() {
 		var c = this.category.serializeForm('no');
 		if( c != '' ) {
-			M.api.postJSONCb('ciniki.tutorials.categoryUpdate', 
-				{'business_id':M.curBusinessID, 'category':this.category.permalink}, c, function(rsp) {
+			M.api.postJSONCb('ciniki.tutorials.tagUpdate', 
+				{'business_id':M.curBusinessID, 'tag_type':'10', 'tag':this.category.permalink}, c, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;
@@ -376,8 +390,8 @@ function ciniki_tutorials_main() {
 
 	this.groupEdit = function(cb, group) {
 		if( group != null ) { this.group.permalink = group; }
-		M.api.getJSONCb('ciniki.tutorials.groupDetails', {'business_id':M.curBusinessID,
-			'group':this.group.permalink}, function(rsp) {
+		M.api.getJSONCb('ciniki.tutorials.tagDetails', {'business_id':M.curBusinessID, 'tag_type':'40',
+			'tag':this.group.permalink}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
@@ -392,8 +406,8 @@ function ciniki_tutorials_main() {
 	this.groupSave = function() {
 		var c = this.group.serializeForm('no');
 		if( c != '' ) {
-			M.api.postJSONCb('ciniki.tutorials.groupUpdate', 
-				{'business_id':M.curBusinessID, 'group':this.group.permalink}, c, function(rsp) {
+			M.api.postJSONCb('ciniki.tutorials.tagUpdate', 
+				{'business_id':M.curBusinessID, 'tag_type':'40', 'tag':this.group.permalink}, c, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;
@@ -441,9 +455,9 @@ function ciniki_tutorials_main() {
 		}
 		if( this.tutorial.tutorial_id > 0 ) {
 			var c = this.tutorial.serializeForm('no');
-			if( this.tutorial.sections.details.fields.permalink.active == 'yes' && this.tutorial.formValue('title') != this.tutorial.data.title ) {
-				c += '&permalink=' + encodeURIComponent(this.tutorial.formValue('permalink'));
-			}
+//			if( this.tutorial.sections.details.fields.permalink.active == 'yes' && this.tutorial.formValue('title') != this.tutorial.data.title ) {
+//				c += '&permalink=' + encodeURIComponent(this.tutorial.formValue('permalink'));
+//			}
 			if( c != '' ) {
 				M.api.postJSONFormData('ciniki.tutorials.tutorialUpdate', {'business_id':M.curBusinessID, 
 					'tutorial_id':this.tutorial.tutorial_id}, c, function(rsp) {

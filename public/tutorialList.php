@@ -90,6 +90,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 	if( isset($args['category']) && $args['category'] != '' ) {
 		$strsql = "SELECT ciniki_tutorials.id, "
 			. "ciniki_tutorials.sequence, "
+			. "ciniki_tutorials.sequence, "
 			. "ciniki_tutorials.title, "	
 			. "IFNULL(t2.tag_name, '') AS tags "
 			. "FROM ciniki_tutorial_tags AS t1 "

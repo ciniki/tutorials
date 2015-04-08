@@ -64,24 +64,83 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
 	}
 	$item = $rc['item'];
 
-	if( (!isset($args['permalink']) || $args['permalink'] == '') && isset($args['title']) ) {
+//	if( (!isset($args['permalink']) || $args['permalink'] == '') && isset($args['title']) ) {
+	if( isset($args['title']) || isset($args['groups']) ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
-		$args['permalink'] = ciniki_core_makePermalink($ciniki, $args['title']);
-		//
-		// Make sure the permalink is unique
-		//
-		$strsql = "SELECT id, title, permalink "
-			. "FROM ciniki_tutorials "
-			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "AND permalink = '" . ciniki_core_dbQuote($ciniki, $args['permalink']) . "' "
-			. "AND id <> '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
-			. "";
-		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'tutorial');
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
+		if( isset($args['title']) ) {
+			$args['permalink'] = ciniki_core_makePermalink($ciniki, $args['title']);
+		} else {
+			$args['permalink'] = $item['permalink'];
 		}
-		if( $rc['num_rows'] > 0 ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2244', 'msg'=>'You already have tutorial with this title, please choose another title.'));
+
+		//
+		// Check through all the groups to see if the permalink already exists for one of the groups
+		//
+		$groups = array();
+		if( ($ciniki['business']['modules']['ciniki.tutorials']['flags']&0x04) > 0 ) {
+			if( isset($args['groups']) ) {
+				$groups = $args['groups'];
+			} else {	
+				$strsql = "SELECT DISTINCT tag_name "
+					. "FROM ciniki_tutorial_tags "
+					. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+					. "AND tag_type = '40' "
+					. "AND tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
+					. "";
+				ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuerylist');
+				$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.tutorials', 'groups', 'tag_name');
+				if( $rc['stat'] != 'ok' ) {	
+					return $rc;
+				}
+				$groups = $rc['groups'];
+			}
+		}
+
+		//
+		// Make sure the permalink is unique within the groups
+		//
+		if( count($groups) > 0 ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteList');
+			$strsql = "SELECT ciniki_tutorials.id, "
+				. "ciniki_tutorials.title, "
+				. "ciniki_tutorials.permalink "
+				. "FROM ciniki_tutorial_tags, ciniki_tutorials "
+				. "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. "AND ciniki_tutorial_tags.tag_type = 40 "
+				. "AND ciniki_tutorial_tags.tag_name IN (" . ciniki_core_dbQuoteList($ciniki, $groups) . ") "
+				. "AND ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
+				. "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. "AND ciniki_tutorials.permalink = '" . ciniki_core_dbQuote($ciniki, $args['permalink']) . "' "
+				. "AND ciniki_tutorials.id <> '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
+				. "";
+			$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'tutorial');
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			if( $rc['num_rows'] > 0 ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2244', 'msg'=>'You already have tutorial with this title, please choose another title.'));
+			}
+		}
+		//
+		// No groups, do a basic permalink check
+		//
+		else {
+			//
+			// Make sure the permalink is unique
+			//
+			$strsql = "SELECT id, title, permalink "
+				. "FROM ciniki_tutorials "
+				. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. "AND permalink = '" . ciniki_core_dbQuote($ciniki, $args['permalink']) . "' "
+				. "AND id <> '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
+				. "";
+			$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'tutorial');
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			if( $rc['num_rows'] > 0 ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2244', 'msg'=>'You already have tutorial with this title, please choose another title.'));
+			}
 		}
 	}
 

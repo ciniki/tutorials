@@ -2,30 +2,34 @@
 //
 // Description
 // ===========
-// This method will update a category names in the tutorials.  This can be used to
-// merge categories.
+// This method will update a tag names in the tutorials.  This can be used to
+// merge tags.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
 // business_id:		The ID of the business to the item is a part of.
-// old_category:	The name of the old category.
-// new_category:	The new name for the category.
+// old_tag:			The name of the old tag.
+// new_tag:			The new name for the tag.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_tutorials_categoryUpdate(&$ciniki) {
+function ciniki_tutorials_tagUpdate(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-        'category'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Category'), 
-        'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Synopsis'), 
+        'tag_type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
+        'tag'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Tag'), 
+        'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sequence'), 
+        'image'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Image'), 
+        'image-caption'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Image Caption'), 
+        'content'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Description'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -37,7 +41,7 @@ function ciniki_tutorials_categoryUpdate(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.categoryUpdate'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tagUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -58,14 +62,24 @@ function ciniki_tutorials_categoryUpdate(&$ciniki) {
 		return $rc;
 	}   
 
+	$tag_type = '';
+	if( $args['tag_type'] == '10' ) {
+		$tag_type = 'category';
+	} elseif( $args['tag_type'] == '40' ) {
+		$tag_type = 'group';
+	} else {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2330', 'msg'=>'Invalid tag type'));
+	}
+
+
 	$updated = 0;
-	$fields = array('sequence');
+	$fields = array('sequence', 'image', 'image-caption', 'content');
 	foreach($fields as $f) {
 		if( isset($args[$f]) ) {
-			$detail_key = 'category-' . $f . '-' . $args['category'];
+			$detail_key = $tag_type . '-' . $f . '-' . $args['tag'];
 
 			//
-			// Get the existing category description
+			// Get the existing tag description
 			//
 			$strsql = "SELECT detail_value "
 				. "FROM ciniki_tutorial_settings "

@@ -6,6 +6,12 @@
 # Category Sequence
 # category-sequence-{permalink}	The sequence for the category {permalink}
 #
+# Group details
+# group-sequence-{permalink}		The sequence for the group {permalink}
+# group-description-{permalink}		The description for the group {permalink}
+# group-image-{permalink}			The description for the group {permalink}
+# group-image-caption-{permalink}	The description for the group {permalink}
+#
 # Fields
 # ------
 # business_id:	The id of the business the detail is for.
