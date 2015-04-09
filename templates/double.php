@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $args) {
+function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $args) {
 
 	require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/tcpdf/tcpdf.php');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheOriginal');
@@ -46,6 +46,8 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 	class MYPDF extends TCPDF {
 		public $business_name = '';
 		public $title = '';
+		public $toc = 'no';
+		public $toc_categories = 'no';
 		public $pagenumbers = 'yes';
 		public $footer_height = 0;
 		public $header_height = 0;
@@ -66,7 +68,7 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 			if( $this->pagenumbers == 'yes' ) {
 				$this->SetY(-15);
 				$this->SetFont('helvetica', 'I', 8);
-				$this->Cell(0, 8, $this->footer_text . '  --  Page ' . $this->pageNo().'/'.$this->getAliasNbPages(), 
+				$this->Cell(0, 8, $this->footer_text . '  --  Page ' . $this->getAliasNumPage().'/'.$this->getAliasNbPages(), 
 					0, false, 'C', 0, '', 0, false, 'T', 'M');
 			}
 		}
@@ -131,7 +133,7 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 			}
 		}
 
-		public function AddMyPage($ciniki, $business_id, $title, $page1, $page2) {
+		public function AddMyPage($ciniki, $business_id, $category_title, $title, $page1, $page2) {
 			// Add a page
 			$this->title = $title;
 			$this->AddPage('L');
@@ -140,6 +142,18 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 			$this->SetDrawColor(51);
 			$this->SetLineWidth(0.15);
 	
+			// Add a table of contents bookmarks
+			if( $this->toc == 'yes' && $category_title !== NULL ) {
+				if( $this->toc_categories == 'yes' && $category_title != '' ) {
+					$this->Bookmark($category_title, 0, 0, '', '');
+				}
+				if( $this->toc_categories == 'yes' ) {
+					$this->Bookmark($this->title, 1, 0, '', '');
+				} else {
+					$this->Bookmark($this->title, 0, 0, '', '');
+				}
+			}
+
 			$this->AddSubPage($ciniki, $business_id, $this->left_margin, $page1);
 			if( $page2 != NULL) {
 				$this->AddSubPage($ciniki, $business_id, $this->middle_margin + ($this->getPageWidth()/2), $page2);
@@ -183,30 +197,59 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $tutorials, $a
 	// Add the tutorials items
 	//
 	$page_num = 1;
-	foreach($tutorials as $tid => $tutorial) {
-		$pdf->title = $tutorial['title'];
+	$pdf->toc_categories = 'no';
+	if( count($categories) > 1 ) {
+		$pdf->toc_categories = 'yes';
+	}
+	if( isset($args['toc']) && $args['toc'] == 'yes' ) {
+		$pdf->toc = 'yes';
+	}
+	foreach($categories as $cid => $category) {
+		$tutorial_num = 1;
+		foreach($category['tutorials'] as $tid => $tutorial) {
+			if( isset($tutorial['steps']) ) {
+				$pdf->title = $tutorial['title'];
 
-		// 
-		// Add introduction to tutorial
-		//
-		$prev = array('image_id'=>$tutorial['image_id'], 'subtitle'=>'', 'content'=>strip_tags($tutorial['content']));
+				// 
+				// Add introduction to tutorial
+				//
+				$prev = array('image_id'=>$tutorial['image_id'], 'subtitle'=>'', 'content'=>strip_tags($tutorial['content']));
 
-		$step_num = 1;
-		foreach($tutorial['steps'] as $sid => $step) {
-			$step['number'] = $step_num;
-			if( $prev == NULL ) {
-				$prev = array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content']));
-			} else {
-				$pdf->AddMyPage($ciniki, $business_id, $tutorial['title'], $prev, 
-					array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content'])));
-				$prev = NULL;
+				$step_num = 1;
+				foreach($tutorial['steps'] as $sid => $step) {
+					$step['number'] = $step_num;
+					if( $prev == NULL ) {
+						$prev = array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content']));
+					} else {
+						error_log($tutorial_num . ':' . $step_num);
+						$pdf->AddMyPage($ciniki, $business_id, (($tutorial_num==1&&$step_num<2)?$category['name']:($step_num<2?'':NULL)), $tutorial['title'], $prev, 
+							array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content'])));
+						$prev = NULL;
+					}
+					$page_num++;
+					$step_num++;
+				}
+				if( $prev != NULL ) {
+					$pdf->AddMyPage($ciniki, $business_id, (($tutorial_num==1&&$step_num<2)?$category['name']:($step_num<2?'':NULL)), $tutorial['title'], $prev, NULL);
+				}
 			}
-			$page_num++;
-			$step_num++;
+			$tutorial_num++;	
 		}
-		if( $prev != NULL ) {
-			$pdf->AddMyPage($ciniki, $business_id, $tutorial['title'], $prev, NULL);
-		}
+	}
+
+	if( isset($args['coverpage']) && $args['coverpage'] == 'yes' && isset($args['toc']) && $args['toc'] == 'yes' ) {
+
+	} elseif( isset($args['coverpage']) && $args['coverpage'] == 'yes' ) {
+
+	} elseif( isset($args['toc']) && $args['toc'] == 'yes' ) {
+		$pdf->title = 'Table of Contents';
+		$pdf->addTOCPage('P');
+		$pdf->Ln(8);
+		$pdf->SetFont('', '', 12);
+		$pdf->pagenumbers = 'no';
+		$pdf->addTOC(0, 'courier', '.', 'INDEX', 'B');
+		$pdf->pagenumbers = 'yes';
+		$pdf->endTOCPage();
 	}
 
 	return array('stat'=>'ok', 'pdf'=>$pdf);

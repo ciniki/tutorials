@@ -640,8 +640,9 @@ function ciniki_tutorials_main() {
 	this.exportShow = function(cb) {
 		this.export.sections = {
 			'details':{'label':'Export', 'fields':{
-				'layout':{'label':'Layout', 'type':'select', 'default':'single', 'options':{'single':'Single', 'half':'Half', 'double':'Double', 'quad':'Quad'}},
+				'layout':{'label':'Layout', 'type':'select', 'default':'single', 'options':{'single':'Single', 'double':'Double', 'triple':'Triple'}},
 				'coverpage':{'label':'Cover Page', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
+				'toc':{'label':'TOC', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				'title':{'label':'Title', 'type':'text'},
 				}},
 		};
@@ -677,6 +678,7 @@ function ciniki_tutorials_main() {
 		var args = {'business_id':M.curBusinessID, 'output':'pdf'};
 		args['layout'] = this.export.formValue('layout');
 		args['coverpage'] = this.export.formValue('coverpage');
+		args['toc'] = this.export.formValue('toc');
 		args['title'] = this.export.formValue('title');
 		var tutorials = '';
 		for(var i in this.export.sections) {

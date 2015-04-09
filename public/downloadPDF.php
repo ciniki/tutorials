@@ -46,8 +46,9 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 		// PDF options
 //        'output'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Output Type'), 
         'layout'=>array('required'=>'no', 'blank'=>'no', 'default'=>'list', 'name'=>'Layout',
-			'validlist'=>array('single', 'half', 'double', 'quad')), 
+			'validlist'=>array('single', 'double', 'triple')), 
         'coverpage'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Cover Page'), 
+        'toc'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Table of Contents'), 
         'title'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Title'), 
         'tutorials'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Tutorials'), // List of tutorials to include
         )); 
@@ -69,13 +70,50 @@ function ciniki_tutorials_downloadPDF($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
 
 	//
-	// Load the list of tutorials, and their steps
+	// Load the list of tutorials organized by category
 	//
 	$strsql = "SELECT ciniki_tutorials.id, "
+		. "IFNULL(ciniki_tutorial_tags.tag_name, '') AS category, "
+		. "IFNULL(ciniki_tutorial_settings.detail_value, 99) AS catsequence, "
 		. "ciniki_tutorials.title, "
 		. "ciniki_tutorials.sequence, "
 		. "ciniki_tutorials.primary_image_id, "
-		. "ciniki_tutorials.content, "
+		. "ciniki_tutorials.content "
+		. "FROM ciniki_tutorials "
+		. "LEFT JOIN ciniki_tutorial_tags ON ("
+			. "ciniki_tutorials.id = ciniki_tutorial_tags.tutorial_id "
+			. "AND ciniki_tutorial_tags.tag_type = 10 "
+			. "AND ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. ") "
+		. "LEFT JOIN ciniki_tutorial_settings ON ("
+			. "CONCAT_WS('-', 'category', 'sequence', ciniki_tutorial_tags.permalink) = ciniki_tutorial_settings.detail_key "
+			. "AND ciniki_tutorial_settings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. ") "
+		. "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND ciniki_tutorials.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['tutorials']) . ") "
+		. "ORDER BY catsequence, category, title, ciniki_tutorials.id "
+		. "";
+
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+	$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.tutorials', array(
+		array('container'=>'categories', 'fname'=>'category',
+			'fields'=>array('name'=>'category')),
+		array('container'=>'tutorials', 'fname'=>'id',
+			'fields'=>array('id', 'title', 'sequence', 'image_id'=>'primary_image_id', 'content')),
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( !isset($rc['categories']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2259', 'msg'=>'Unable to find tutorials'));
+	} else {
+		$categories = $rc['categories'];
+	}
+	
+	//
+	// Load the list of tutorials, and their steps
+	//
+	$strsql = "SELECT ciniki_tutorials.id, "
 		. "ciniki_tutorial_steps.id AS step_id, "
 		. "ciniki_tutorial_step_content.code, "
 		. "ciniki_tutorial_step_content.title AS step_title, "
@@ -97,7 +135,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 	$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.tutorials', array(
 		array('container'=>'tutorials', 'fname'=>'id',
-			'fields'=>array('id', 'title', 'sequence', 'image_id'=>'primary_image_id', 'content')),
+			'fields'=>array('id')),
 		array('container'=>'steps', 'fname'=>'step_id',
 			'fields'=>array('id'=>'step_id', 'code', 'title'=>'step_title', 'image_id'=>'step_image_id', 'content'=>'step_content')),
 		));
@@ -107,10 +145,16 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 	if( !isset($rc['tutorials']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2259', 'msg'=>'Unable to find tutorials'));
 	} else {
-		$tutorials = $rc['tutorials'];
+		foreach($categories as $cid => $cat) {
+			foreach($cat['tutorials'] as $tid => $tutorial) {
+				if( isset($rc['tutorials'][$tid]['steps']) ) {
+					$categories[$cid]['tutorials'][$tid]['steps'] = $rc['tutorials'][$tid]['steps'];
+				}
+			}
+		}
 	}
 
-	if( count($tutorials) < 1 ) {
+	if( count($categories) < 1 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2260', 'msg'=>'Unable to find tutorials'));
 	}
 
@@ -119,7 +163,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'templates', $args['layout']);
 	$function = 'ciniki_tutorials_templates_' . $args['layout'];
-	$rc = $function($ciniki, $args['business_id'], $tutorials, $args);
+	$rc = $function($ciniki, $args['business_id'], $categories, $args);
 	if( $rc['stat'] != 'ok' ) {	
 		return $rc;
 	}
@@ -127,8 +171,11 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 	if( isset($args['title']) && $args['title'] != '' ) {
 		$filename = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/ /', '_', $args['title']));
 	} else {
-		foreach($tutorials as $tutorial) {
-			$filename = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/ /', '_', $tutorial['title']));
+		foreach($categories as $cat) {
+			foreach($cat['tutorials'] as $tutorial) {
+				$filename = preg_replace('/[^a-zA-Z0-9_]/', '', preg_replace('/ /', '_', $tutorial['title']));
+				break;
+			}
 			break;
 		}
 	}

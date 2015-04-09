@@ -88,8 +88,8 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
 	// Generate PDF
 	//
 	if( $args['layout'] != 'single' 
-//		&& $args['layout'] != 'half' 
 		&& $args['layout'] != 'double' 
+		&& $args['layout'] != 'triple' 
 //		&& $args['layout'] != 'quad' 
 		) {
 		return array('stat'=>'404', 'err'=>array('pkg'=>'ciniki', 'code'=>'2261', 'msg'=>"That tutorial is not available in the format you requested."));
@@ -104,7 +104,7 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'templates', $args['layout']);
 	$function = 'ciniki_tutorials_templates_' . $args['layout'];
-	$rc = $function($ciniki, $business_id, $tutorials, $args);
+	$rc = $function($ciniki, $business_id, array(array('name'=>'', 'tutorials'=>$tutorials)), $args);
 	if( $rc['stat'] != 'ok' ) {	
 		return $rc;
 	}
