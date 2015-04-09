@@ -142,7 +142,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 			'primary_image_id'=>'0',
 			'synopsis'=>'',
 			'content'=>'',
-			'webflags'=>'1',
+			'webflags'=>'0',
 			);
 	}
 
