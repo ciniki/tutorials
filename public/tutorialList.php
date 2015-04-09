@@ -106,7 +106,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 			. "WHERE t1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND t1.tag_type = 10 "
 			. "AND t1.permalink = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' "
-			. "ORDER BY ciniki_tutorials.sequence, ciniki_tutorials.title "
+			. "ORDER BY publishedstatus, ciniki_tutorials.sequence, ciniki_tutorials.title "
 			. "";
 		if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
 			$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
@@ -145,7 +145,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 			. "WHERE t1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND t1.tag_type = 40 "
 			. "AND t1.permalink = '" . ciniki_core_dbQuote($ciniki, $args['group']) . "' "
-			. "ORDER BY catsequence, ciniki_tutorials.sequence, ciniki_tutorials.title "
+			. "ORDER BY publishedstatus, catsequence, ciniki_tutorials.sequence, ciniki_tutorials.title "
 			. "";
 		if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
 			$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
@@ -173,7 +173,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 				. ") "
 			. "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "HAVING ISNULL(tag_name) "
-			. "ORDER BY ciniki_tutorials.sequence, title "
+			. "ORDER BY publishedstatus, ciniki_tutorials.sequence, title "
 			. "";
 		if( isset($args['limit']) && $args['limit'] != '' && $args['limit'] > 0 ) {
 			$strsql .= "LIMIT " . ciniki_core_dbQuote($ciniki, $args['limit']) . " ";
