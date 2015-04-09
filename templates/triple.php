@@ -143,7 +143,8 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 				$image = $rc['image'];
 				$this->SetLineWidth(0.25);
 				$this->SetDrawColor(50);
-				$img = $this->Image('@'.$image, '', '', $img_box_width, $img_box_height-4, 'JPEG', '', '', false, 300, '', false, false, 1, 'CT');
+				$img = $this->Image('@'.$image, '', '', $img_box_width, $img_box_height-4, 'JPEG', '', '', false, 300, '', false, false,
+					array('LTRB'=>array('color'=>array(128,128,128))), 'CT');
 				$new_y = $this->getY() + ($img_box_height>$details_height?$img_box_height:$details_height); // - $this->top_margin - $this->header_height;
 			} else {
 				$new_y = $this->getY() + $details_height; // - $this->top_margin - $this->header_height;
@@ -151,7 +152,14 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 		
 			if( $section['content'] != '' ) {
 				foreach($content as $cnt) {
-					$this->SetX($this->left_margin + $this->middle_margin + $img_box_width);
+					if( $image != NULL || $section['subtitle'] != '' ) {
+						$this->SetX($this->left_margin + $this->middle_margin + $img_box_width);
+						if( $image == NULL ) {
+							$cnt_box_width = 180 - $this->middle_margin - $this->middle_margin;
+						}
+					} else {
+						$this->SetX($this->left_margin);
+					}
 					$this->SetFont('', '', '12');
 					$this->MultiCell($cnt_box_width, 5, $cnt, 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T');
 					$this->Ln(2);

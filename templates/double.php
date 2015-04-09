@@ -131,7 +131,8 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 					$image = $rc['image'];
 					$this->SetLineWidth(0.25);
 					$this->SetDrawColor(50);
-					$img = $this->Image('@'.$image, '', '', $img_box_width, $img_box_height, 'JPEG', '', '', false, 300, '', false, false, 0, 'CT');
+					$img = $this->Image('@'.$image, '', '', $img_box_width, $img_box_height, 'JPEG', '', '', false, 300, '', false, false,
+						array('LTRB'=>array('color'=>array(128,128,128))), 'CT');
 				}
 			}
 		}
