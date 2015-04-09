@@ -23,10 +23,13 @@ function ciniki_tutorials_main() {
 			'options':{'label':'Options', 'aside':'yes', 'list':{
 				'export':{'label':'Export', 'fn':'M.ciniki_tutorials_main.exportShow(\'M.ciniki_tutorials_main.showMenu();\');'},
 				}},
-			'tutorials':{'label':'Tutorials', 'visible':'yes', 'type':'simplegrid', 'num_cols':1,
+			'published':{'label':'Published', 'visible':'yes', 'type':'simplegrid', 'num_cols':1,
 				'cellClasses':['multiline'],
 				'addTxt':'Add Tutorial',
 				'addFn':'M.ciniki_tutorials_main.tutorialEdit(\'M.ciniki_tutorials_main.showMenu();\',0,M.ciniki_tutorials_main.menu.category);',
+				},
+			'unpublished':{'label':'Drafts', 'visible':'yes', 'type':'simplegrid', 'num_cols':1,
+				'cellClasses':['multiline'],
 				},
 			};
 		this.menu.sectionData = function(s) { 
@@ -38,7 +41,7 @@ function ciniki_tutorials_main() {
 				return d.group.name;
 			} else if( s == 'categories' ) {
 				return d.category.name;
-			} else if( s == 'tutorials' ) {
+			} else if( s == 'published' || s == 'unpublished' ) {
 				return '<span class="maintext">' + d.tutorial.title + '</span><span class="subtext">' + d.tutorial.tags + '</span>';
 			}
 		};
@@ -47,7 +50,7 @@ function ciniki_tutorials_main() {
 				return 'M.ciniki_tutorials_main.showMenu(null,\'' + escape(d.group.name) + '\',\'\',\'' + d.group.permalink + '\');';
 			} else if( s == 'categories' ) {
 				return 'M.ciniki_tutorials_main.showMenu(null,\'' + escape(d.category.name) + '\',\'' + d.category.permalink + '\',\'\');';
-			} else if( s == 'tutorials' ) {
+			} else if( s == 'published' || s == 'unpublished' ) {
 				return 'M.ciniki_tutorials_main.tutorialEdit(\'M.ciniki_tutorials_main.showMenu();\',\'' + d.tutorial.id + '\');';
 			}
 		};
@@ -316,7 +319,7 @@ function ciniki_tutorials_main() {
 	}
 
 	this.showMenu = function(cb, title, category, group) {
-		if( title != null && title != '' ) { this.menu.sections.tutorials.label = unescape(title); }
+		if( title != null && title != '' ) { this.menu.sections.published.label = unescape(title); }
 		if( category != null ) { 
 			this.menu.category = category; 
 			if( category != '' ) {
@@ -352,6 +355,7 @@ function ciniki_tutorials_main() {
 					p.sections.groups.visible = 'yes';
 					p.sections.groups.aside = 'yes';
 				}
+				p.sections.unpublished.visible = (rsp.unpublished!=null&&rsp.unpublished.length>0?'yes':'no');
 				p.refresh();
 				p.show(cb);
 			});

@@ -14,7 +14,12 @@
 # permalink: 		The permalink for the tutorial on the website
 #
 # flags:			Any flags for the tutorial **future**
-# webflags:			Any webflags for the tutorial **future**
+# webflags:			Any webflags for the tutorial
+#
+#					0x01 - Published
+#					0x02 -
+#					0x04 -
+#					0x08 -
 #
 # synopsis:			The short description for listings.
 # content:			The full description of the tutorial, displayed on the tutorial page.

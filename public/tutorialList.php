@@ -90,7 +90,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 	if( isset($args['category']) && $args['category'] != '' ) {
 		$strsql = "SELECT ciniki_tutorials.id, "
 			. "ciniki_tutorials.sequence, "
-			. "ciniki_tutorials.sequence, "
+			. "IF((webflags&0x01)=1, 'published', 'unpublished') AS publishedstatus, "
 			. "ciniki_tutorials.title, "	
 			. "IFNULL(t2.tag_name, '') AS tags "
 			. "FROM ciniki_tutorial_tags AS t1 "
@@ -113,6 +113,8 @@ function ciniki_tutorials_tutorialList($ciniki) {
 		}
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'status', 'fname'=>'publishedstatus', 'name'=>'status',
+				'fields'=>array('publishedstatus')),
 			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
 				'fields'=>array('id', 'title', 'sequence', 'tags'),
 				'dlists'=>array('tags'=>', ')),
@@ -122,6 +124,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 	elseif( isset($args['group']) && $args['group'] != '' ) {
 		$strsql = "SELECT ciniki_tutorials.id, "
 			. "ciniki_tutorials.sequence, "
+			. "IF((webflags&0x01)=1, 'published', 'unpublished') AS publishedstatus, "
 			. "ciniki_tutorials.title, "	
 			. "IFNULL(t2.tag_name, '') AS tags, "
 			. "IFNULL(ciniki_tutorial_settings.detail_value, 99) AS catsequence "
@@ -149,6 +152,8 @@ function ciniki_tutorials_tutorialList($ciniki) {
 		}
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'status', 'fname'=>'publishedstatus', 'name'=>'status',
+				'fields'=>array('publishedstatus')),
 			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
 				'fields'=>array('id', 'title', 'sequence', 'tags'),
 				'dlists'=>array('tags'=>', ')),
@@ -159,6 +164,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
 		$strsql = "SELECT ciniki_tutorials.id, "
 			. "ciniki_tutorials.sequence, "
 			. "ciniki_tutorials.title, "
+			. "IF((webflags&0x01)=1, 'published', 'unpublished') AS publishedstatus, "
 			. "ciniki_tutorial_tags.tag_name "	
 			. "FROM ciniki_tutorials "
 			. "LEFT JOIN ciniki_tutorial_tags ON ("
@@ -174,6 +180,8 @@ function ciniki_tutorials_tutorialList($ciniki) {
 		}
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
+			array('container'=>'status', 'fname'=>'publishedstatus', 'name'=>'status',
+				'fields'=>array('publishedstatus')),
 			array('container'=>'tutorials', 'fname'=>'id', 'name'=>'tutorial',
 				'fields'=>array('id', 'title', 'sequence')),
 			));
@@ -183,10 +191,18 @@ function ciniki_tutorials_tutorialList($ciniki) {
 		return $rc;
 	}
 	$rsp = array('stat'=>'ok');
-	if( !isset($rc['tutorials']) ) {
-		$rsp['tutorials'] = array();
+	if( !isset($rc['status']) ) {
+		$rsp['published'] = array();
+		$rsp['unpublished'] = array();
 	} else {
-		$rsp['tutorials'] = $rc['tutorials'];
+		foreach($rc['status'] as $status) {
+			if( $status['status']['publishedstatus'] == 'published' && isset($status['status']['tutorials']) ) {
+				$rsp['published'] = $status['status']['tutorials'];
+			}
+			if( $status['status']['publishedstatus'] == 'unpublished' && isset($status['status']['tutorials']) ) {
+				$rsp['unpublished'] = $status['status']['tutorials'];
+			}
+		}
 	}
 
 	//
