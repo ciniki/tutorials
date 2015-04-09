@@ -46,7 +46,8 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 	class MYPDF extends TCPDF {
 		public $business_name = '';
 		public $title = '';
-		public $pagenumbers = 'yes';
+		public $pagenumbers = 'no';
+		public $coverpage = 'no';
 		public $toc = 'no';
 		public $toc_categories = 'no';
 		public $footer_height = 0;
@@ -58,7 +59,9 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 			$this->SetLineWidth(0.25);
 			$this->SetDrawColor(125);
 			$this->setCellPaddings(5,1,5,2);
-			$this->Cell(0, 22, $this->title, 'B', false, 'C', 0, '', 0, false, 'M', 'B');
+			if( $this->title != '' ) {
+				$this->Cell(0, 22, $this->title, 'B', false, 'C', 0, '', 0, false, 'M', 'B');
+			}
 			$this->setCellPaddings(0,0,0,0);
 		}
 
@@ -182,6 +185,39 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 	$pdf->SetFont('times', 'BI', 10);
 	$pdf->SetCellPadding(0);
 
+	if( isset($args['coverpage']) && $args['coverpage'] == 'yes' ) {
+		$pdf->title = '';
+		if( isset($args['title']) && $args['title'] != '' ) {
+			$title = $args['title'];
+		} else {
+			$title = "Tutorials";
+		}
+		$pdf->pagenumbers = 'no';
+		$pdf->AddPage('P');
+		
+		error_log(print_r($args, true));
+		if( isset($args['coverpage-image']) && $args['coverpage-image'] > 0 ) {
+			$img_box_width = 180;
+			$img_box_height = 150;
+			$rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $args['coverpage-image'], 2000, 2000);
+			if( $rc['stat'] == 'ok' ) {
+				$image = $rc['image'];
+				$pdf->SetLineWidth(0.25);
+				$pdf->SetDrawColor(50);
+				$img = $pdf->Image('@'.$image, '', '', $img_box_width, $img_box_height, 'JPEG', '', '', false, 300, '', false, false, 0, 'CT');
+			}
+			$pdf->SetY(-50);
+		} else {
+			$pdf->SetY(-100);
+		}
+
+
+		$pdf->SetFont('times', 'B', '30');
+		$pdf->MultiCell(180, 5, $title, 0, 'C', false, 1, '', '', true, 0, false, true, 0, 'T');
+		$pdf->endPage();
+	}
+	$pdf->pagenumbers = 'yes';
+
 	//
 	// Add the tutorials items
 	//
@@ -238,9 +274,9 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 		$pdf->title = 'Table of Contents';
 		$pdf->addTOCPage();
 		$pdf->Ln(8);
-		$pdf->SetFont('', '', 12);
+		$pdf->SetFont('', '', 14);
 		$pdf->pagenumbers = 'no';
-		$pdf->addTOC(0, 'courier', '.', 'INDEX', 'B');
+		$pdf->addTOC(2, 'courier', '.', 'INDEX', 'B');
 		$pdf->pagenumbers = 'yes';
 		$pdf->endTOCPage();
 	}

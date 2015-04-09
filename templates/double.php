@@ -221,7 +221,6 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 					if( $prev == NULL ) {
 						$prev = array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content']));
 					} else {
-						error_log($tutorial_num . ':' . $step_num);
 						$pdf->AddMyPage($ciniki, $business_id, (($tutorial_num==1&&$step_num<2)?$category['name']:($step_num<2?'':NULL)), $tutorial['title'], $prev, 
 							array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content'])));
 						$prev = NULL;

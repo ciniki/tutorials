@@ -3,6 +3,9 @@
 # -----------
 # This table stores the settings for tutorials module
 #
+# General
+# coverpage-image 				The ID of the image to use on the cover page.
+#
 # Category Sequence
 # category-sequence-{permalink}	The sequence for the category {permalink}
 #

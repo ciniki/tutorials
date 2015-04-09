@@ -63,6 +63,13 @@ function ciniki_tutorials_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_tutorial_history',
 		);
+	$objects['setting'] = array(
+		'type'=>'settings',
+		'name'=>'Tutorial Settings',
+		'table'=>'ciniki_tutorial_settings',
+		'history_table'=>'ciniki_tutorial_history',
+		);
+	
 	
 	return array('stat'=>'ok', 'objects'=>$objects);
 }

@@ -16,11 +16,10 @@ function ciniki_tutorials_main() {
 		this.menu.data = {};
 		this.menu.category = '';
 		this.menu.sections = {
-			'groups':{'label':'Groups', 'visible':'no', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
-				},
-			'categories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
-				},
-			'options':{'label':'Options', 'aside':'yes', 'list':{
+			'groups':{'label':'Groups', 'visible':'no', 'aside':'yes', 'type':'simplegrid', 'num_cols':1},
+			'categories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1},
+			'groupexport':{'label':'Export', 'visible':'no', 'aside':'yes', 'type':'simplegrid', 'num_cols':1},
+			'options':{'label':'Options', 'visible':'no', 'aside':'yes', 'list':{
 				'export':{'label':'Export', 'fn':'M.ciniki_tutorials_main.exportShow(\'M.ciniki_tutorials_main.showMenu();\');'},
 				}},
 			'published':{'label':'Published', 'visible':'yes', 'type':'simplegrid', 'num_cols':1,
@@ -33,11 +32,12 @@ function ciniki_tutorials_main() {
 				},
 			};
 		this.menu.sectionData = function(s) { 
+			if( s == 'groupexport' ) { return this.data['groups']; }
 			if( s == 'options' ) { return this.sections[s].list; }
 			return this.data[s];
 		};
 		this.menu.cellValue = function(s, i, j, d) {
-			if( s == 'groups' ) {
+			if( s == 'groups' || s == 'groupexport' ) {
 				return d.group.name;
 			} else if( s == 'categories' ) {
 				return d.category.name;
@@ -50,6 +50,8 @@ function ciniki_tutorials_main() {
 				return 'M.ciniki_tutorials_main.showMenu(null,\'' + escape(d.group.name) + '\',\'\',\'' + d.group.permalink + '\');';
 			} else if( s == 'categories' ) {
 				return 'M.ciniki_tutorials_main.showMenu(null,\'' + escape(d.category.name) + '\',\'' + d.category.permalink + '\',\'\');';
+			} else if( s == 'groupexport' ) {
+				return 'M.ciniki_tutorials_main.exportShow(\'M.ciniki_tutorials_main.showMenu();\',\'' + escape(d.group.name) + '\',\'' + d.group.permalink + '\');';
 			} else if( s == 'published' || s == 'unpublished' ) {
 				return 'M.ciniki_tutorials_main.tutorialEdit(\'M.ciniki_tutorials_main.showMenu();\',\'' + d.tutorial.id + '\');';
 			}
@@ -282,6 +284,7 @@ function ciniki_tutorials_main() {
 			'ciniki_tutorials_main', 'export',
 			'mc', 'medium', 'sectioned', 'ciniki.tutorials.main.export');
 		this.export.data = {};
+		this.export.group = '';
 		this.export.category = '';
 		this.export.sections = {};
 		this.export.fieldValue = function(s, i, d) {
@@ -307,6 +310,8 @@ function ciniki_tutorials_main() {
 		// Determine what is visible
 		//
 		this.menu.sections.groups.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+		this.menu.sections.groupexport.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+		this.menu.sections.options.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'no':'yes';
 		this.menu.sections.categories.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
 		this.tutorial.sections._groups.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
 		this.tutorial.sections._categories.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
@@ -637,7 +642,7 @@ function ciniki_tutorials_main() {
 		}
 	};
 
-	this.exportShow = function(cb) {
+	this.exportShow = function(cb, title, group) {
 		this.export.sections = {
 			'details':{'label':'Export', 'fields':{
 				'layout':{'label':'Layout', 'type':'select', 'default':'single', 'options':{'single':'Single', 'double':'Double', 'triple':'Triple'}},
@@ -646,8 +651,11 @@ function ciniki_tutorials_main() {
 				'title':{'label':'Title', 'type':'text'},
 				}},
 		};
+		if( group != null ) {
+			this.export.group = group;
+		}
 		M.api.getJSONCb('ciniki.tutorials.tutorialList', 
-			{'business_id':M.curBusinessID, 'allcategories':'yes'}, function(rsp) {
+			{'business_id':M.curBusinessID, 'allcategories':'yes', 'group':this.export.group}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
@@ -674,9 +682,12 @@ function ciniki_tutorials_main() {
 			});
 	};
 
-	this.exportPDF = function() {
+	this.exportPDF = function(group) {
 		var args = {'business_id':M.curBusinessID, 'output':'pdf'};
 		args['layout'] = this.export.formValue('layout');
+		if( group != null ) {
+			args['group'] = group;
+		}
 		args['coverpage'] = this.export.formValue('coverpage');
 		args['toc'] = this.export.formValue('toc');
 		args['title'] = this.export.formValue('title');

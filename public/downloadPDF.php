@@ -157,6 +157,21 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 	if( count($categories) < 1 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2260', 'msg'=>'Unable to find tutorials'));
 	}
+	
+	//
+	// Check for coverpage settings
+	//
+	if( isset($args['coverpage']) && $args['coverpage'] == 'yes' ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+		$rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_tutorial_settings', 'business_id', $args['business_id'], 'ciniki.tutorials', 'settings', 'coverpage');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		error_log(print_r($rc['settings'], true));
+		if( isset($rc['settings']['coverpage-image']) ) {
+			$args['coverpage-image'] = $rc['settings']['coverpage-image'];
+		}
+	}
 
 	//
 	// Generate PDF
