@@ -87,7 +87,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
 					. "AND tag_type = '40' "
 					. "AND tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
 					. "";
-				ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuerylist');
+				ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
 				$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.tutorials', 'groups', 'tag_name');
 				if( $rc['stat'] != 'ok' ) {	
 					return $rc;
@@ -113,6 +113,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
 				. "AND ciniki_tutorials.permalink = '" . ciniki_core_dbQuote($ciniki, $args['permalink']) . "' "
 				. "AND ciniki_tutorials.id <> '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
 				. "";
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 			$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'tutorial');
 			if( $rc['stat'] != 'ok' ) {
 				return $rc;
