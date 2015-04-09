@@ -84,7 +84,15 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 
 		public function AddMySection($ciniki, $business_id, $section) {
 			$cnt_height = ($this->getPageHeight() - $this->top_margin - $this->header_height - $this->footer_height);
-			$cnt_box_width = (($this->getPageWidth() - $this->left_margin - $this->right_margin - $this->middle_margin)/2) + 20;
+			$cnt_box_width = 180;
+			$image = NULL;
+			if( $section['image_id'] > 0 ) {
+				$rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $section['image_id'], 2000, 2000);
+				if( $rc['stat'] == 'ok' ) {
+					$image = $rc['image'];
+					$cnt_box_width = (($this->getPageWidth() - $this->left_margin - $this->right_margin - $this->middle_margin)/2) + 20;
+				}
+			}
 			$cnt_box_height = ($cnt_height/3);
 			$details_height = 0;
 			if( $section['content'] != '' ) {
@@ -100,7 +108,11 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 				$subtitle_height = 6;
 			}
 			$img_box_width = (180 - $cnt_box_width);
-			$img_box_height = $cnt_box_height - $subtitle_height;
+			if( $image != NULL ) {
+				$img_box_height = $cnt_box_height - $subtitle_height;
+			} else {
+				$img_box_height = $subtitle_height;
+			}
 
 			//
 			// Check if we have enough room
@@ -127,14 +139,11 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 			//
 			// Load the image
 			//
-			if( $section['image_id'] > 0 ) {
-				$rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $section['image_id'], 2000, 2000);
-				if( $rc['stat'] == 'ok' ) {
-					$image = $rc['image'];
-					$this->SetLineWidth(0.25);
-					$this->SetDrawColor(50);
-					$img = $this->Image('@'.$image, '', '', $img_box_width, $img_box_height-4, 'JPEG', '', '', false, 300, '', false, false, 1, 'CT');
-				}
+			if( $image != NULL ) {
+				$image = $rc['image'];
+				$this->SetLineWidth(0.25);
+				$this->SetDrawColor(50);
+				$img = $this->Image('@'.$image, '', '', $img_box_width, $img_box_height-4, 'JPEG', '', '', false, 300, '', false, false, 1, 'CT');
 				$new_y = $this->getY() + ($img_box_height>$details_height?$img_box_height:$details_height); // - $this->top_margin - $this->header_height;
 			} else {
 				$new_y = $this->getY() + $details_height; // - $this->top_margin - $this->header_height;
@@ -185,7 +194,11 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 	$pdf->SetFont('times', 'BI', 10);
 	$pdf->SetCellPadding(0);
 
+	//
+	// Check if coverpage is to be outputed
+	//
 	if( isset($args['coverpage']) && $args['coverpage'] == 'yes' ) {
+		$pdf->coverpage = 'yes';
 		$pdf->title = '';
 		if( isset($args['title']) && $args['title'] != '' ) {
 			$title = $args['title'];
@@ -195,7 +208,6 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 		$pdf->pagenumbers = 'no';
 		$pdf->AddPage('P');
 		
-		error_log(print_r($args, true));
 		if( isset($args['coverpage-image']) && $args['coverpage-image'] > 0 ) {
 			$img_box_width = 180;
 			$img_box_height = 150;
@@ -276,7 +288,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 		$pdf->Ln(8);
 		$pdf->SetFont('', '', 14);
 		$pdf->pagenumbers = 'no';
-		$pdf->addTOC(2, 'courier', '.', 'INDEX', 'B');
+		$pdf->addTOC(($pdf->coverpage=='yes'?2:0), 'courier', '.', 'INDEX', 'B');
 		$pdf->pagenumbers = 'yes';
 		$pdf->endTOCPage();
 	}

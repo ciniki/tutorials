@@ -167,7 +167,6 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
-		error_log(print_r($rc['settings'], true));
 		if( isset($rc['settings']['coverpage-image']) ) {
 			$args['coverpage-image'] = $rc['settings']['coverpage-image'];
 		}

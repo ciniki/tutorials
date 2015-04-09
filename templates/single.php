@@ -46,6 +46,7 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $categories, $
 	class MYPDF extends TCPDF {
 		public $business_name = '';
 		public $title = '';
+		public $coverpage = 'no';
 		public $toc = 'no';
 		public $toc_categories = 'no';
 		public $pagenumbers = 'yes';
@@ -54,7 +55,9 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $categories, $
 		public $footer_text = '';
 		public function Header() {
 			$this->SetFont('helvetica', 'B', 20);
-			$this->Cell(0, 20, $this->title, 0, false, 'C', 0, '', 0, false, 'M', 'B');
+			if( $this->title != '' ) {
+				$this->Cell(0, 20, $this->title, 0, false, 'C', 0, '', 0, false, 'M', 'B');
+			}
 		}
 
 		// Page footer
@@ -166,6 +169,41 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $categories, $
 	$pdf->SetCellPadding(0);
 
 	//
+	// Check if coverpage is to be outputed
+	//
+	if( isset($args['coverpage']) && $args['coverpage'] == 'yes' ) {
+		$pdf->coverpage = 'yes';
+		$pdf->title = '';
+		if( isset($args['title']) && $args['title'] != '' ) {
+			$title = $args['title'];
+		} else {
+			$title = "Tutorials";
+		}
+		$pdf->pagenumbers = 'no';
+		$pdf->AddPage('P');
+		
+		if( isset($args['coverpage-image']) && $args['coverpage-image'] > 0 ) {
+			$img_box_width = 180;
+			$img_box_height = 150;
+			$rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $args['coverpage-image'], 2000, 2000);
+			if( $rc['stat'] == 'ok' ) {
+				$image = $rc['image'];
+				$pdf->SetLineWidth(0.25);
+				$pdf->SetDrawColor(50);
+				$img = $pdf->Image('@'.$image, '', '', $img_box_width, $img_box_height, 'JPEG', '', '', false, 300, '', false, false, 0, 'CT');
+			}
+			$pdf->SetY(-50);
+		} else {
+			$pdf->SetY(-100);
+		}
+
+
+		$pdf->SetFont('times', 'B', '30');
+		$pdf->MultiCell(180, 5, $title, 0, 'C', false, 1, '', '', true, 0, false, true, 0, 'T');
+		$pdf->endPage();
+	}
+	$pdf->pagenumbers = 'yes';
+	//
 	// Add the tutorials items
 	//
 	$page_num = 1;
@@ -202,9 +240,9 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $categories, $
 		$pdf->title = 'Table of Contents';
 		$pdf->addTOCPage();
 		$pdf->Ln(8);
-		$pdf->SetFont('', '', 12);
+		$pdf->SetFont('', '', 14);
 		$pdf->pagenumbers = 'no';
-		$pdf->addTOC(0, 'courier', '.', 'INDEX', 'B');
+		$pdf->addTOC(($pdf->coverpage=='yes'?2:0), 'courier', '.', 'INDEX', 'B');
 		$pdf->pagenumbers = 'yes';
 		$pdf->endTOCPage();
 	}
