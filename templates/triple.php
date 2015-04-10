@@ -97,6 +97,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 			$details_height = 0;
 			if( $section['content'] != '' ) {
 				$content = preg_split("/\n\s*\n/m", $section['content']);
+				$this->SetFont('', '', '12');
 				foreach($content as $cnt) {
 					$details_height += $this->getStringHeight($cnt_box_width, $cnt);
 					$details_height += 3;
@@ -113,6 +114,11 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 			} else {
 				$img_box_height = $subtitle_height;
 			}
+
+			error_log("starting: " . $this->getY());
+			error_log("details: " . $details_height);
+			error_log("img_box_height: " . $img_box_height);
+			error_log("cnt_box_width: " . $cnt_box_width);
 
 			//
 			// Check if we have enough room
@@ -151,6 +157,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 			}
 		
 			if( $section['content'] != '' ) {
+				$this->SetFont('', '', '12');
 				foreach($content as $cnt) {
 					if( $image != NULL || $section['subtitle'] != '' ) {
 						$this->SetX($this->left_margin + $this->middle_margin + $img_box_width);
@@ -160,12 +167,12 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 					} else {
 						$this->SetX($this->left_margin);
 					}
-					$this->SetFont('', '', '12');
 					$this->MultiCell($cnt_box_width, 5, $cnt, 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T');
 					$this->Ln(2);
 				}
 			}
-
+			
+			error_log("Moving to: " . $new_y);
 			$this->SetY($new_y);
 		}
 	}
