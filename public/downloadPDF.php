@@ -91,7 +91,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 			. ") "
 		. "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND ciniki_tutorials.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['tutorials']) . ") "
-		. "ORDER BY catsequence, category, title, ciniki_tutorials.id "
+		. "ORDER BY catsequence, category, ciniki_tutorials.sequence, title, ciniki_tutorials.id "
 		. "";
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
