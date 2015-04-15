@@ -115,11 +115,6 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 				$img_box_height = $subtitle_height;
 			}
 
-			error_log("starting: " . $this->getY());
-			error_log("details: " . $details_height);
-			error_log("img_box_height: " . $img_box_height);
-			error_log("cnt_box_width: " . $cnt_box_width);
-
 			//
 			// Check if we have enough room
 			//
@@ -172,7 +167,6 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 				}
 			}
 			
-			error_log("Moving to: " . $new_y);
 			$this->SetY($new_y);
 		}
 	}
