@@ -119,7 +119,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
 				return $rc;
 			}
 			if( $rc['num_rows'] > 0 ) {
-				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2244', 'msg'=>'You already have tutorial with this title, please choose another title.'));
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2334', 'msg'=>'You already have tutorial with this title, please choose another title.'));
 			}
 		}
 		//

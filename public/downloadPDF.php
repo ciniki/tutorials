@@ -105,7 +105,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['categories']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2259', 'msg'=>'Unable to find tutorials'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2295', 'msg'=>'Unable to find tutorials'));
 	} else {
 		$categories = $rc['categories'];
 	}
