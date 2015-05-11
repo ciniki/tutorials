@@ -648,6 +648,7 @@ function ciniki_tutorials_main() {
 				'layout':{'label':'Layout', 'type':'select', 'default':'single', 'options':{'single':'Single', 'double':'Double', 'triple':'Triple'}},
 				'coverpage':{'label':'Cover Page', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				'toc':{'label':'TOC', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
+				'doublesided':{'label':'Double Sided', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				'title':{'label':'Title', 'type':'text'},
 				}},
 		};
@@ -690,6 +691,7 @@ function ciniki_tutorials_main() {
 		}
 		args['coverpage'] = this.export.formValue('coverpage');
 		args['toc'] = this.export.formValue('toc');
+		args['doublesided'] = this.export.formValue('doublesided');
 		args['title'] = this.export.formValue('title');
 		var tutorials = '';
 		for(var i in this.export.sections) {

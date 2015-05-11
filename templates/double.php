@@ -49,10 +49,12 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 		public $coverpage = 'no';
 		public $toc = 'no';
 		public $toc_categories = 'no';
+		public $doublesided = 'no';
 		public $pagenumbers = 'yes';
 		public $footer_height = 0;
 		public $header_height = 0;
 		public $footer_text = '';
+
 		public function Header() {
 			$this->SetFont('helvetica', 'B', 20);
 			$this->SetLineWidth(0.25);
@@ -71,7 +73,7 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 			if( $this->pagenumbers == 'yes' ) {
 				$this->SetY(-15);
 				$this->SetFont('helvetica', 'I', 8);
-				$this->Cell(0, 8, $this->footer_text . '  --  Page ' . $this->getAliasNumPage().'/'.$this->getAliasNbPages(), 
+				$this->Cell(0, 8, $this->footer_text . '  --  Page ' . $this->getAliasNumPage().' of '.$this->getAliasNbPages(), 
 					0, false, 'C', 0, '', 0, false, 'T', 'M');
 			}
 		}
@@ -197,6 +199,10 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 	$pdf->SetFont('times', 'BI', 10);
 	$pdf->SetCellPadding(0);
 
+	if( isset($args['doublesided']) ) {
+		$pdf->doublesided = $args['doublesided'];
+	}
+
 	//
 	// Check if coverpage is to be outputed
 	//
@@ -230,6 +236,11 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 		$pdf->SetFont('times', 'B', '30');
 		$pdf->MultiCell(180, 5, $title, 0, 'C', false, 1, '', '', true, 0, false, true, 0, 'T');
 		$pdf->endPage();
+		if( $pdf->doublesided == 'yes' ) {
+			$pdf->AddPage();
+			$pdf->Cell(0, 0, '');
+			$pdf->endPage();
+		}
 	}
 	$pdf->pagenumbers = 'yes';
 
@@ -244,6 +255,13 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 	if( isset($args['toc']) && $args['toc'] == 'yes' ) {
 		$pdf->toc = 'yes';
 	}
+
+	if( $pdf->toc == 'yes' && $pdf->doublesided == 'yes' ) {
+		$pdf->AddPage();
+		$pdf->Cell(0, 0, '');
+		$pdf->endPage();
+	}
+
 	foreach($categories as $cid => $category) {
 		$tutorial_num = 1;
 		foreach($category['tutorials'] as $tid => $tutorial) {
@@ -256,13 +274,14 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 				$prev = array('image_id'=>$tutorial['image_id'], 'subtitle'=>'', 'content'=>strip_tags($tutorial['content']));
 
 				$step_num = 1;
+				$num_steps = count($tutorial['steps']);
 				foreach($tutorial['steps'] as $sid => $step) {
 					$step['number'] = $step_num;
 					if( $prev == NULL ) {
-						$prev = array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content']));
+						$prev = array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' of ' . $num_steps . ' - ' . $step['title'], 'content'=>strip_tags($step['content']));
 					} else {
 						$pdf->AddMyPage($ciniki, $business_id, (($tutorial_num==1&&$step_num<2)?$category['name']:($step_num<2?'':NULL)), $tutorial['title'], $prev, 
-							array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' - ' . $step['title'], 'content'=>strip_tags($step['content'])));
+							array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' of ' . $num_steps . ' - ' . $step['title'], 'content'=>strip_tags($step['content'])));
 						$prev = NULL;
 					}
 					$page_num++;
@@ -282,7 +301,7 @@ function ciniki_tutorials_templates_double($ciniki, $business_id, $categories, $
 		$pdf->Ln(8);
 		$pdf->SetFont('', '', 14);
 		$pdf->pagenumbers = 'no';
-		$pdf->addTOC((($pdf->coverpage=='yes')?2:0), 'courier', '.', 'INDEX', 'B');
+		$pdf->addTOC((($pdf->coverpage=='yes')?($pdf->doublesided=='yes'?3:2):0), 'courier', '.', 'INDEX', 'B');
 		$pdf->pagenumbers = 'yes';
 		$pdf->endTOCPage();
 	}

@@ -48,7 +48,9 @@ function ciniki_tutorials_templates_half($ciniki, $business_id, $tutorials, $arg
 		public $title = '';
 		public $pagenumbers = 'yes';
 		public $footer_height = 0;
+		public $doublesided = 'no';
 		public $header_height = 0;
+
 		public function Header() {
 			$this->SetFont('helvetica', 'B', 20);
 			$this->Cell(0, 20, $this->title, 0, false, 'C', 0, '', 0, false, 'M', 'B');
@@ -145,6 +147,10 @@ function ciniki_tutorials_templates_half($ciniki, $business_id, $tutorials, $arg
 	// Set font
 	$pdf->SetFont('times', 'BI', 10);
 	$pdf->SetCellPadding(0);
+
+	if( isset($args['doublesided']) ) {
+		$pdf->doublesided = $args['doublesided'];
+	}
 
 	//
 	// Add the tutorials items

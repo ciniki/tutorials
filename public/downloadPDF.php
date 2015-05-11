@@ -49,6 +49,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
 			'validlist'=>array('single', 'double', 'triple')), 
         'coverpage'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Cover Page'), 
         'toc'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Table of Contents'), 
+        'doublesided'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Double Sided'), 
         'title'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Title'), 
         'tutorials'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Tutorials'), // List of tutorials to include
         )); 
