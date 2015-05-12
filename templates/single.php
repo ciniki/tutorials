@@ -183,6 +183,7 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $categories, $
 		$pdf->title = '';
 		if( isset($args['title']) && $args['title'] != '' ) {
 			$title = $args['title'];
+			$pdf->footer_text .= '  --  ' . $args['title'];
 		} else {
 			$title = "Tutorials";
 		}
@@ -236,6 +237,9 @@ function ciniki_tutorials_templates_single($ciniki, $business_id, $categories, $
 	foreach($categories as $cid => $category) {
 		$tutorial_num = 1;
 		foreach($category['tutorials'] as $tid => $tutorial) {
+			if( isset($args['removetext']) && $args['removetext'] != '' ) {
+				$tutorial['title'] = preg_replace('/' . $args['removetext'] . '/', '', $tutorial['title']);
+			}
 			$pdf->title = $tutorial['title'];
 
 			// 

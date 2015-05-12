@@ -217,6 +217,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 		$pdf->title = '';
 		if( isset($args['title']) && $args['title'] != '' ) {
 			$title = $args['title'];
+			$pdf->footer_text .= '  --  ' . $args['title'];
 		} else {
 			$title = "Tutorials";
 		}
