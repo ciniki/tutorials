@@ -272,6 +272,9 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 	foreach($categories as $cid => $category) {
 		$tutorial_num = 1;
 		foreach($category['tutorials'] as $tid => $tutorial) {
+			if( isset($args['removetext']) && $args['removetext'] != '' ) {
+				$tutorial['title'] = preg_replace('/' . $args['removetext'] . '/', '', $tutorial['title']);
+			}
 			$pdf->title = $tutorial['title'];
 			// Start a new page
 			$pdf->AddPage('P');
@@ -295,6 +298,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 					$pdf->Bookmark($pdf->title, 0, 0, '', '');
 				}
 			}
+
 
 			$step_num = 1;
 			if( isset($tutorial['steps']) ) {

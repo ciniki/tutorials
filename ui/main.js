@@ -650,6 +650,7 @@ function ciniki_tutorials_main() {
 				'toc':{'label':'TOC', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				'doublesided':{'label':'Double Sided', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				'title':{'label':'Title', 'type':'text'},
+				'removetext':{'label':'Remove', 'type':'text', 'visible':'yes'},
 				}},
 		};
 		if( group != null ) {
@@ -693,6 +694,7 @@ function ciniki_tutorials_main() {
 		args['toc'] = this.export.formValue('toc');
 		args['doublesided'] = this.export.formValue('doublesided');
 		args['title'] = this.export.formValue('title');
+		args['removetext'] = this.export.formValue('removetext');
 		var tutorials = '';
 		for(var i in this.export.sections) {
 			if( i.match(/_[0-9]/) ) {

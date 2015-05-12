@@ -51,6 +51,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
         'toc'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Table of Contents'), 
         'doublesided'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Double Sided'), 
         'title'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Title'), 
+        'removetext'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Text to Remove'), 
         'tutorials'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Tutorials'), // List of tutorials to include
         )); 
     if( $rc['stat'] != 'ok' ) { 
