@@ -91,7 +91,7 @@ function ciniki_tutorials_main() {
 		this.group.data = null;
 		this.group.permalink = 0;
 		this.group.sections = {
-			'_image':{'label':'Image', 'aside':'yes', 'fields':{
+			'_image':{'label':'Image', 'aside':'yes', 'type':'imageform', 'fields':{
 				'image':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no', 'controls':'all'},
 			}},
 			'details':{'label':'', 'fields':{
@@ -127,7 +127,7 @@ function ciniki_tutorials_main() {
 		this.tutorial.data = null;
 		this.tutorial.tutorial_id = 0;
 		this.tutorial.sections = {
-			'_image':{'label':'Image', 'aside':'yes', 'fields':{
+			'_image':{'label':'Image', 'aside':'yes', 'type':'imageform', 'fields':{
 				'primary_image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no', 'controls':'all'},
 			}},
 			'details':{'label':'', 'aside':'yes', 'fields':{
@@ -199,7 +199,7 @@ function ciniki_tutorials_main() {
 		this.step.tutorial_id = 0;
 		this.step.prevnext = {'prev_id':-1, 'next_id':-1, 'list':[]};
 		this.step.sections = {
-			'_image':{'label':'Image', 'aside':'yes', 'fields':{
+			'_image':{'label':'Image', 'aside':'yes', 'type':'imageform', 'fields':{
 				'image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'history':'no', 'controls':'all'},
 			}},
 			'details':{'label':'', 'aside':'yes', 'fields':{
