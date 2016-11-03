@@ -68,7 +68,7 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
     } elseif( $args['tag_type'] == '40' ) {
         $tag_type = 'group';
     } else {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2330', 'msg'=>'Invalid tag type'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.8', 'msg'=>'Invalid tag type'));
     }
 
 

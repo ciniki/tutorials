@@ -51,7 +51,7 @@ function ciniki_tutorials_tutorialStepDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2249', 'msg'=>'The tutorialStep does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.14', 'msg'=>'The tutorialStep does not exist'));
     }
     $item = $rc['item'];
 

@@ -60,7 +60,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2243', 'msg'=>'Tutorial not found'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.17', 'msg'=>'Tutorial not found'));
     }
     $item = $rc['item'];
 
@@ -119,7 +119,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
                 return $rc;
             }
             if( $rc['num_rows'] > 0 ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2334', 'msg'=>'You already have tutorial with this title, please choose another title.'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.18', 'msg'=>'You already have tutorial with this title, please choose another title.'));
             }
         }
         //
@@ -140,7 +140,7 @@ function ciniki_tutorials_tutorialUpdate(&$ciniki) {
                 return $rc;
             }
             if( $rc['num_rows'] > 0 ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2244', 'msg'=>'You already have tutorial with this title, please choose another title.'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.19', 'msg'=>'You already have tutorial with this title, please choose another title.'));
             }
         }
     }

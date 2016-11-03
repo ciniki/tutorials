@@ -51,7 +51,7 @@ function ciniki_tutorials_tagDetails($ciniki) {
     } elseif( $args['tag_type'] == '40' ) {
         $tag_type = 'group';
     } else {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2329', 'msg'=>'Invalid tag type'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.7', 'msg'=>'Invalid tag type'));
     }
 
     $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_tutorial_settings', 

@@ -76,7 +76,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
             return $rc;
         }
         if( isset($rc['num_rows']) && $rc['num_rows'] > 0 ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2251', 'msg'=>'The code already exists.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.12', 'msg'=>'The code already exists.'));
         }
     }
 

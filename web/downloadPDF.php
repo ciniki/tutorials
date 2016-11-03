@@ -75,13 +75,13 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
         return $rc;
     }
     if( !isset($rc['tutorials']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2032', 'msg'=>'Unable to find tutorials'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.20', 'msg'=>'Unable to find tutorials'));
     } else {
         $tutorials = $rc['tutorials'];
     }
 
     if( count($tutorials) < 1 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2031', 'msg'=>'Unable to find tutorials'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.21', 'msg'=>'Unable to find tutorials'));
     }
 
     //
@@ -92,7 +92,7 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
         && $args['layout'] != 'triple' 
 //      && $args['layout'] != 'quad' 
         ) {
-        return array('stat'=>'404', 'err'=>array('pkg'=>'ciniki', 'code'=>'2261', 'msg'=>"That tutorial is not available in the format you requested."));
+        return array('stat'=>'404', 'err'=>array('code'=>'ciniki.tutorials.22', 'msg'=>"That tutorial is not available in the format you requested."));
     }
 
     if( !isset($args['title']) || $args['title'] == '' ) {

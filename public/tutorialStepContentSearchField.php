@@ -42,7 +42,7 @@ function ciniki_tutorials_tutorialStepContentSearchField($ciniki) {
     if( $args['field'] != 'code'
         && $args['field'] != 'title'
         ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2250', 'msg'=>'Unvalid search field'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.13', 'msg'=>'Unvalid search field'));
     }
     $strsql = "SELECT id, code, title, image_id, content "
         . "FROM ciniki_tutorial_step_content "

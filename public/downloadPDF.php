@@ -107,7 +107,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
         return $rc;
     }
     if( !isset($rc['categories']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2295', 'msg'=>'Unable to find tutorials'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.4', 'msg'=>'Unable to find tutorials'));
     } else {
         $categories = $rc['categories'];
     }
@@ -145,7 +145,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
         return $rc;
     }
     if( !isset($rc['tutorials']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2259', 'msg'=>'Unable to find tutorials'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.5', 'msg'=>'Unable to find tutorials'));
     } else {
         foreach($categories as $cid => $cat) {
             foreach($cat['tutorials'] as $tid => $tutorial) {
@@ -157,7 +157,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
     }
 
     if( count($categories) < 1 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2260', 'msg'=>'Unable to find tutorials'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.tutorials.6', 'msg'=>'Unable to find tutorials'));
     }
     
     //
