@@ -16,7 +16,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'tutorial_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Tutorial'), 
         'step_content_id'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Content'), 
         'sequence'=>array('required'=>'no', 'default'=>'0', 'blank'=>'yes', 'name'=>'Sequence'),
@@ -32,10 +32,10 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tutorialStepAdd'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.tutorialStepAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     } 
@@ -46,7 +46,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
     if( !isset($args['sequence']) || $args['sequence'] == '' || $args['sequence'] == '0' ) {
         $strsql = "SELECT MAX(sequence) AS max_sequence "
             . "FROM ciniki_tutorial_steps "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'seq');
@@ -68,7 +68,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
         ) {
         $strsql = "SELECT id, code, title "
             . "FROM ciniki_tutorial_step_content "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND code = '" . ciniki_core_dbQuote($ciniki, $args['code']) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'items');
@@ -91,7 +91,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
 
     if( isset($args['step_content_id']) && $args['step_content_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectGet');
-        $rc = ciniki_core_objectGet($ciniki, $args['business_id'], 'ciniki.tutorials.step_content', $args['step_content_id']);
+        $rc = ciniki_core_objectGet($ciniki, $args['tnid'], 'ciniki.tutorials.step_content', $args['step_content_id']);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
             return $rc;
@@ -116,7 +116,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
             // Update the step content to the database
             //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-            $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.tutorials.step_content', $args['step_content_id'], $update_args, 0x04);
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.tutorials.step_content', $args['step_content_id'], $update_args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
                 return $rc;
@@ -133,7 +133,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
             'content'=>(isset($args['content'])?$args['content']:''),
             );
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-        $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.tutorials.step_content', $add_args, 0x04);
+        $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.tutorials.step_content', $add_args, 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
             return $rc;
@@ -145,7 +145,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
     // Add the step to the database
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-    $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.tutorials.step', $args, 0x04);
+    $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.tutorials.step', $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
         return $rc;
@@ -157,7 +157,7 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
     //
     if( isset($args['sequence']) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'tutorialUpdateSequences');
-        $rc = ciniki_tutorials_tutorialUpdateSequences($ciniki, $args['business_id'], 
+        $rc = ciniki_tutorials_tutorialUpdateSequences($ciniki, $args['tnid'], 
             $args['tutorial_id'], $args['sequence'], -1);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
@@ -174,11 +174,11 @@ function ciniki_tutorials_tutorialStepAdd(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'tutorials');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'tutorials');
 
     return array('stat'=>'ok', 'id'=>$step_id);
 }

@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to get the list from.
+// tnid:     The ID of the tenant to get the list from.
 // section:         (optional) How the list should be sorted and organized.
 //
 //                  - category
@@ -42,7 +42,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         // PDF options
 //        'output'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Output Type'), 
         'layout'=>array('required'=>'no', 'blank'=>'no', 'default'=>'list', 'name'=>'Layout',
@@ -61,10 +61,10 @@ function ciniki_tutorials_downloadPDF($ciniki) {
    
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.downloadPDF'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.downloadPDF'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -85,13 +85,13 @@ function ciniki_tutorials_downloadPDF($ciniki) {
         . "LEFT JOIN ciniki_tutorial_tags ON ("
             . "ciniki_tutorials.id = ciniki_tutorial_tags.tutorial_id "
             . "AND ciniki_tutorial_tags.tag_type = 10 "
-            . "AND ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_tutorial_settings ON ("
             . "CONCAT_WS('-', 'category', 'sequence', ciniki_tutorial_tags.permalink) = ciniki_tutorial_settings.detail_key "
-            . "AND ciniki_tutorial_settings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tutorial_settings.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_tutorials.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['tutorials']) . ") "
         . "ORDER BY catsequence, category, ciniki_tutorials.sequence, title, ciniki_tutorials.id "
         . "";
@@ -124,13 +124,13 @@ function ciniki_tutorials_downloadPDF($ciniki) {
         . "FROM ciniki_tutorials "
         . "LEFT JOIN ciniki_tutorial_steps ON ("
             . "ciniki_tutorials.id = ciniki_tutorial_steps.tutorial_id "
-            . "AND ciniki_tutorial_steps.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tutorial_steps.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_tutorial_step_content ON ("
             . "ciniki_tutorial_steps.step_content_id = ciniki_tutorial_step_content.id "
-            . "AND ciniki_tutorial_step_content.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_tutorial_step_content.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_tutorials.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['tutorials']) . ") "
         . "ORDER BY ciniki_tutorials.id, ciniki_tutorial_steps.sequence, ciniki_tutorial_step_content.title "
         . "";
@@ -165,7 +165,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
     //
     if( isset($args['coverpage']) && $args['coverpage'] == 'yes' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-        $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_tutorial_settings', 'business_id', $args['business_id'], 'ciniki.tutorials', 'settings', 'coverpage');
+        $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_tutorial_settings', 'tnid', $args['tnid'], 'ciniki.tutorials', 'settings', 'coverpage');
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -179,7 +179,7 @@ function ciniki_tutorials_downloadPDF($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'templates', $args['layout']);
     $function = 'ciniki_tutorials_templates_' . $args['layout'];
-    $rc = $function($ciniki, $args['business_id'], $categories, $args);
+    $rc = $function($ciniki, $args['tnid'], $categories, $args);
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }

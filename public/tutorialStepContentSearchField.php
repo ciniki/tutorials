@@ -16,7 +16,7 @@ function ciniki_tutorials_tutorialStepContentSearchField($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'field'=>array('required'=>'yes', 'blank'=>'no', 'validlist'=>array('code', 'title'), 'name'=>'Field'),
         'start_needle'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Search'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
@@ -28,10 +28,10 @@ function ciniki_tutorials_tutorialStepContentSearchField($ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tutorialStepContentSearchField'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.tutorialStepContentSearchField'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -46,7 +46,7 @@ function ciniki_tutorials_tutorialStepContentSearchField($ciniki) {
     }
     $strsql = "SELECT id, code, title, image_id, content "
         . "FROM ciniki_tutorial_step_content "
-        . "WHERE ciniki_tutorial_step_content.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_tutorial_step_content.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND (" . $args['field']  . " LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "AND " . $args['field'] . " <> '' "
             . ") "

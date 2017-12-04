@@ -7,7 +7,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business.
+// tnid:         The ID of the tenant.
 //
 // Returns
 // -------
@@ -18,7 +18,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'tutorial_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tutorial'),
         'steps'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Steps'),
         'categories'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Categories'), 
@@ -31,10 +31,10 @@ function ciniki_tutorials_tutorialGet($ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tutorialGet'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.tutorialGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -57,7 +57,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
             . "ciniki_tutorials.content, "
             . "ciniki_tutorials.webflags "
             . "FROM ciniki_tutorials "
-            . "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_tutorials.id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
@@ -83,10 +83,10 @@ function ciniki_tutorials_tutorialGet($ciniki) {
                 . "FROM ciniki_tutorial_steps "
                 . "LEFT JOIN ciniki_tutorial_step_content ON ("
                     . "ciniki_tutorial_steps.step_content_id = ciniki_tutorial_step_content.id "
-                    . "AND ciniki_tutorial_step_content.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                    . "AND ciniki_tutorial_step_content.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                     . ") " 
                 . "WHERE ciniki_tutorial_steps.tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
-                . "AND ciniki_tutorial_steps.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_tutorial_steps.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . "ORDER BY ciniki_tutorial_steps.sequence, ciniki_tutorial_step_content.title "
                 . "";
             $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
@@ -114,7 +114,7 @@ function ciniki_tutorials_tutorialGet($ciniki) {
         $strsql = "SELECT tag_type, tag_name AS lists "
             . "FROM ciniki_tutorial_tags "
             . "WHERE tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "ORDER BY tag_type, tag_name "
             . "";
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.tutorials', array(
@@ -158,9 +158,9 @@ function ciniki_tutorials_tutorialGet($ciniki) {
             . "FROM ciniki_tutorial_tags "
             . "LEFT JOIN ciniki_tutorials ON ("
                 . "ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
-                . "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_tutorial_tags.tag_type = '10' "
             . "GROUP BY tag_name "
             . "ORDER BY tag_name "
@@ -187,9 +187,9 @@ function ciniki_tutorials_tutorialGet($ciniki) {
             . "FROM ciniki_tutorial_tags "
             . "LEFT JOIN ciniki_tutorials ON ("
                 . "ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
-                . "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_tutorial_tags.tag_type = '40' "
             . "GROUP BY tag_name "
             . "ORDER BY tag_name "

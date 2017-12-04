@@ -9,11 +9,11 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_web_tutorialDetails($ciniki, $settings, $business_id, $permalink) {
+function ciniki_tutorials_web_tutorialDetails($ciniki, $settings, $tnid, $permalink) {
 
     $modules = array();
-    if( isset($ciniki['business']['modules']) ) {
-        $modules = $ciniki['business']['modules'];
+    if( isset($ciniki['tenant']['modules']) ) {
+        $modules = $ciniki['tenant']['modules'];
     }
 
     $strsql = "SELECT ciniki_tutorials.id, "
@@ -32,13 +32,13 @@ function ciniki_tutorials_web_tutorialDetails($ciniki, $settings, $business_id, 
         . "FROM ciniki_tutorials "
         . "LEFT JOIN ciniki_tutorial_steps ON ("
             . "ciniki_tutorials.id = ciniki_tutorial_steps.tutorial_id "
-            . "AND ciniki_tutorial_steps.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tutorial_steps.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_tutorial_step_content ON ("
             . "ciniki_tutorial_steps.step_content_id = ciniki_tutorial_step_content.id "
-            . "AND ciniki_tutorial_step_content.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tutorial_step_content.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_tutorials.permalink = '" . ciniki_core_dbQuote($ciniki, $permalink) . "' "
         . "AND (ciniki_tutorials.webflags&0x01) = 1 "
         . "ORDER BY ciniki_tutorial_steps.tutorial_id, ciniki_tutorial_steps.sequence, ciniki_tutorial_step_content.title "
@@ -66,7 +66,7 @@ function ciniki_tutorials_web_tutorialDetails($ciniki, $settings, $business_id, 
     $strsql = "SELECT id, tag_type, tag_name, permalink "
         . "FROM ciniki_tutorial_tags "
         . "WHERE tutorial_id = '" . ciniki_core_dbQuote($ciniki, $tutorial['id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "ORDER BY tag_type, tag_name "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.tutorials', array(

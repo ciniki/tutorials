@@ -9,7 +9,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to the item is a part of.
+// tnid:     The ID of the tenant to the item is a part of.
 // old_tag:         The name of the old tag.
 // new_tag:         The new name for the tag.
 //
@@ -23,7 +23,7 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'tag_type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
         'tag'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Tag'), 
         'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sequence'), 
@@ -38,10 +38,10 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tagUpdate'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.tagUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -83,7 +83,7 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
             //
             $strsql = "SELECT detail_value "
                 . "FROM ciniki_tutorial_settings "
-                . "WHERE ciniki_tutorial_settings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "WHERE ciniki_tutorial_settings.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . "AND ciniki_tutorial_settings.detail_key = '" . ciniki_core_dbQuote($ciniki, $detail_key) . "' "
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'setting');
@@ -91,9 +91,9 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
                 return $rc;
             }
             if( !isset($rc['setting']) ) {
-                $strsql = "INSERT INTO ciniki_tutorial_settings (business_id, detail_key, detail_value, "
+                $strsql = "INSERT INTO ciniki_tutorial_settings (tnid, detail_key, detail_value, "
                     . "date_added, last_updated) VALUES ("
-                    . "' " . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                    . "' " . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                     . ", '" . ciniki_core_dbQuote($ciniki, $detail_key) . "' "
                     . ", '" . ciniki_core_dbQuote($ciniki, $args[$f]) . "' "
                     . ", UTC_TIMESTAMP(), UTC_TIMESTAMP()) "
@@ -103,7 +103,7 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
                     return $rc;
                 }
                 ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.tutorials', 
-                    'ciniki_tutorial_history', $args['business_id'], 
+                    'ciniki_tutorial_history', $args['tnid'], 
                     1, 'ciniki_tutorial_settings', $detail_key, 'detail_value', $args[$f]);
                 $ciniki['syncqueue'][] = array('push'=>'ciniki.tutorials.setting',
                     'args'=>array('id'=>$detail_key));
@@ -111,7 +111,7 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
                 $strsql = "UPDATE ciniki_tutorial_settings "
                     . "SET detail_value = '" . ciniki_core_dbQuote($ciniki, $args[$f]) . "', "
                     . "last_updated = UTC_TIMESTAMP() "
-                    . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                    . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                     . "AND detail_key = '" . ciniki_core_dbQuote($ciniki, $detail_key) . "' "
                     . "";
                 $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.tutorials');
@@ -119,7 +119,7 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
                     return $rc;
                 }
                 ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.tutorials', 
-                    'ciniki_tutorial_history', $args['business_id'], 
+                    'ciniki_tutorial_history', $args['tnid'], 
                     2, 'ciniki_tutorial_settings', $detail_key, 'detail_value', $args[$f]);
                 $ciniki['syncqueue'][] = array('push'=>'ciniki.tutorials.setting',
                     'args'=>array('id'=>$detail_key));
@@ -137,12 +137,12 @@ function ciniki_tutorials_tagUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
     if( $updated > 0 ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-        ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'tutorials');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+        ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'tutorials');
     }
 
     return array('stat'=>'ok');

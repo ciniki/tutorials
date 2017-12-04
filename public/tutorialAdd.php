@@ -16,7 +16,7 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'title'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Title'), 
         'permalink'=>array('required'=>'no', 'default'=>'', 'blank'=>'yes', 'name'=>'Permalink'), 
         'sequence'=>array('required'=>'no', 'default'=>'1', 'blank'=>'yes', 'name'=>'Sequence'), 
@@ -35,10 +35,10 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tutorialAdd'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.tutorialAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     } 
@@ -54,7 +54,7 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
         // Check through all the groups to see if the permalink already exists for one of the groups
         //
         $groups = array();
-        if( ($ciniki['business']['modules']['ciniki.tutorials']['flags']&0x04) > 0 ) {
+        if( ($ciniki['tenant']['modules']['ciniki.tutorials']['flags']&0x04) > 0 ) {
             if( isset($args['groups']) ) {
                 $groups = $args['groups'];
             }
@@ -69,11 +69,11 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
                 . "ciniki_tutorials.title, "
                 . "ciniki_tutorials.permalink "
                 . "FROM ciniki_tutorial_tags, ciniki_tutorials "
-                . "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "WHERE ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . "AND ciniki_tutorial_tags.tag_type = 40 "
                 . "AND ciniki_tutorial_tags.tag_name IN (" . ciniki_core_dbQuoteList($ciniki, $groups) . ") "
                 . "AND ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
-                . "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . "AND ciniki_tutorials.permalink = '" . ciniki_core_dbQuote($ciniki, $args['permalink']) . "' "
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'tutorial');
@@ -93,7 +93,7 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
             //
             $strsql = "SELECT id, title, permalink "
                 . "FROM ciniki_tutorials "
-                . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . "AND permalink = '" . ciniki_core_dbQuote($ciniki, $args['permalink']) . "' "
                 . "AND id <> '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
                 . "";
@@ -120,7 +120,7 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
     // Add the tutorial to the database
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-    $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.tutorials.tutorial', $args, 0x04);
+    $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.tutorials.tutorial', $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
         return $rc;
@@ -132,7 +132,7 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
     //
     if( isset($args['categories']) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'tagsUpdate');
-        $rc = ciniki_core_tagsUpdate($ciniki, 'ciniki.tutorials', 'tag', $args['business_id'],
+        $rc = ciniki_core_tagsUpdate($ciniki, 'ciniki.tutorials', 'tag', $args['tnid'],
             'ciniki_tutorial_tags', 'ciniki_tutorial_history',
             'tutorial_id', $tutorial_id, 10, $args['categories']);
         if( $rc['stat'] != 'ok' ) {
@@ -146,7 +146,7 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
     //
     if( isset($args['groups']) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'tagsUpdate');
-        $rc = ciniki_core_tagsUpdate($ciniki, 'ciniki.tutorials', 'tag', $args['business_id'],
+        $rc = ciniki_core_tagsUpdate($ciniki, 'ciniki.tutorials', 'tag', $args['tnid'],
             'ciniki_tutorial_tags', 'ciniki_tutorial_history',
             'tutorial_id', $tutorial_id, 40, $args['groups']);
         if( $rc['stat'] != 'ok' ) {
@@ -164,11 +164,11 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'tutorials');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'tutorials');
 
     return array('stat'=>'ok', 'id'=>$tutorial_id);
 }

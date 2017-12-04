@@ -12,7 +12,7 @@
 // =======
 // <rsp stat="ok" />
 //
-function ciniki_tutorials_tutorialUpdateSequences($ciniki, $business_id, $tutorial_id, $new_seq, $old_seq) {
+function ciniki_tutorials_tutorialUpdateSequences($ciniki, $tnid, $tutorial_id, $new_seq, $old_seq) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
 
@@ -22,7 +22,7 @@ function ciniki_tutorials_tutorialUpdateSequences($ciniki, $business_id, $tutori
     $strsql = "SELECT id, sequence AS number "
         . "FROM ciniki_tutorial_steps "
         . "WHERE tutorial_id = '" . ciniki_core_dbQuote($ciniki, $tutorial_id) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     // Use the last_updated to determine which is in the proper position for duplicate numbers
     if( $new_seq < $old_seq || $old_seq == -1) {
@@ -46,7 +46,7 @@ function ciniki_tutorials_tutorialUpdateSequences($ciniki, $business_id, $tutori
                 $strsql = "UPDATE ciniki_tutorial_steps SET "
                     . "sequence = '" . ciniki_core_dbQuote($ciniki, $cur_number) . "' "
                     . ", last_updated = UTC_TIMESTAMP() "
-                    . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                     . "AND id = '" . ciniki_core_dbQuote($ciniki, $seq['id']) . "' "
                     . "";
                 $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.tutorials');
@@ -54,7 +54,7 @@ function ciniki_tutorials_tutorialUpdateSequences($ciniki, $business_id, $tutori
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.tutorials');
                 }
                 ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.tutorials', 
-                    'ciniki_tutorial_history', $business_id, 
+                    'ciniki_tutorial_history', $tnid, 
                     2, 'ciniki_tutorial_steps', $seq['id'], 'sequence', $cur_number);
                 $ciniki['syncqueue'][] = array('push'=>'ciniki.tutorials.step', 
                     'args'=>array('id'=>$seq['id']));

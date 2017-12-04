@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to get the list from.
+// tnid:     The ID of the tenant to get the list from.
 // section:         (optional) How the list should be sorted and organized.
 //
 //                  - category
@@ -36,7 +36,7 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $permalink, $args) {
+function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $tnid, $permalink, $args) {
 
     //
     // Load the tutorials, and their steps
@@ -54,13 +54,13 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
         . "FROM ciniki_tutorials "
         . "LEFT JOIN ciniki_tutorial_steps ON ("
             . "ciniki_tutorials.id = ciniki_tutorial_steps.tutorial_id "
-            . "AND ciniki_tutorial_steps.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tutorial_steps.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_tutorial_step_content ON ("
             . "ciniki_tutorial_steps.step_content_id = ciniki_tutorial_step_content.id "
-            . "AND ciniki_tutorial_step_content.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tutorial_step_content.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_tutorials.permalink = '" . ciniki_core_dbQuote($ciniki, $permalink) . "' "
         . "ORDER BY ciniki_tutorials.id, ciniki_tutorial_steps.sequence, ciniki_tutorial_step_content.title "
         . "";
@@ -104,7 +104,7 @@ function ciniki_tutorials_web_downloadPDF($ciniki, $settings, $business_id, $per
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'templates', $args['layout']);
     $function = 'ciniki_tutorials_templates_' . $args['layout'];
-    $rc = $function($ciniki, $business_id, array(array('name'=>'', 'tutorials'=>$tutorials)), $args);
+    $rc = $function($ciniki, $tnid, array(array('name'=>'', 'tutorials'=>$tutorials)), $args);
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }

@@ -10,30 +10,30 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $args) {
+function ciniki_tutorials_templates_triple($ciniki, $tnid, $categories, $args) {
 
     require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/tcpdf/tcpdf.php');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheOriginal');
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'businessDetails');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'tenantDetails');
 
     //
-    // Load business details
+    // Load tenant details
     //
-    $rc = ciniki_businesses_businessDetails($ciniki, $business_id);
+    $rc = ciniki_tenants_tenantDetails($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
     if( isset($rc['details']) && is_array($rc['details']) ) {   
-        $business_details = $rc['details'];
+        $tenant_details = $rc['details'];
     } else {
-        $business_details = array();
+        $tenant_details = array();
     }
 
     //
     // Load INTL settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -44,7 +44,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
     // Create a custom class for this document
     //
     class MYPDF extends TCPDF {
-        public $business_name = '';
+        public $tenant_name = '';
         public $title = '';
         public $pagenumbers = 'no';
         public $coverpage = 'no';
@@ -83,13 +83,13 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
             }
         }
 
-        public function AddMySection($ciniki, $business_id, $section) {
+        public function AddMySection($ciniki, $tnid, $section) {
             $cnt_height = ($this->getPageHeight() - $this->top_margin - $this->header_height - $this->footer_height);
 //          $cnt_box_width = 180;
             $cnt_box_width = ($this->getPageWidth() - $this->left_margin - $this->right_margin - $this->middle_margin);
             $image = NULL;
             if( $section['image_id'] > 0 ) {
-                $rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $section['image_id'], 2000, 2000);
+                $rc = ciniki_images_loadCacheOriginal($ciniki, $tnid, $section['image_id'], 2000, 2000);
                 if( $rc['stat'] == 'ok' ) {
                     $image = $rc['image'];
                     $cnt_box_width = (($this->getPageWidth() - $this->left_margin - $this->right_margin - $this->middle_margin)/2) + 20;
@@ -182,8 +182,8 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 
     // Set PDF basics
     $pdf->SetCreator('Ciniki');
-    $pdf->SetAuthor($business_details['name']);
-    $pdf->footer_text = $business_details['name'];
+    $pdf->SetAuthor($tenant_details['name']);
+    $pdf->footer_text = $tenant_details['name'];
     $pdf->SetTitle($args['title']);
     $pdf->SetSubject('');
     $pdf->SetKeywords('');
@@ -228,7 +228,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
 //          $img_box_width = 180;
             $img_box_width = $pdf->getPageWidth() - $pdf->left_margin - $pdf->right_margin;
             $img_box_height = 150;
-            $rc = ciniki_images_loadCacheOriginal($ciniki, $business_id, $args['coverpage-image'], 2000, 2000);
+            $rc = ciniki_images_loadCacheOriginal($ciniki, $tnid, $args['coverpage-image'], 2000, 2000);
             if( $rc['stat'] == 'ok' ) {
                 $image = $rc['image'];
                 $pdf->SetLineWidth(0.25);
@@ -286,7 +286,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
             // 
             // Add introduction to tutorial
             //
-            $pdf->AddMySection($ciniki, $business_id, 
+            $pdf->AddMySection($ciniki, $tnid, 
                 array('image_id'=>$tutorial['image_id'], 'subtitle'=>'', 'content'=>strip_tags($tutorial['content'])));
             // Add a table of contents bookmarks
             if( isset($args['toc']) && $args['toc'] == 'yes' ) {
@@ -306,7 +306,7 @@ function ciniki_tutorials_templates_triple($ciniki, $business_id, $categories, $
                 $num_steps = count($tutorial['steps']);
                 foreach($tutorial['steps'] as $sid => $step) {
                     $step['number'] = $step_num;
-                    $pdf->AddMySection($ciniki, $business_id, 
+                    $pdf->AddMySection($ciniki, $tnid, 
                         array('image_id'=>$step['image_id'], 'subtitle'=>'Step ' . $step['number'] . ' of ' . $num_steps . ' - ' . $step['title'], 'content'=>strip_tags($step['content'])));
                     $page_num++;
                     $step_num++;

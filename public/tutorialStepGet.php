@@ -7,7 +7,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business.
+// tnid:         The ID of the tenant.
 //
 // Returns
 // -------
@@ -18,7 +18,7 @@ function ciniki_tutorials_tutorialStepGet($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'step_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Step'),
         'tutorial_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Tutorial'),
         )); 
@@ -29,10 +29,10 @@ function ciniki_tutorials_tutorialStepGet($ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tutorialStepGet'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.tutorialStepGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -52,9 +52,9 @@ function ciniki_tutorials_tutorialStepGet($ciniki) {
             . "FROM ciniki_tutorial_steps "
             . "LEFT JOIN ciniki_tutorial_step_content ON ("
                 . "ciniki_tutorial_steps.step_content_id = ciniki_tutorial_step_content.id "
-                . "AND ciniki_tutorial_step_content.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_tutorial_step_content.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_tutorial_steps.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_tutorial_steps.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_tutorial_steps.id = '" . ciniki_core_dbQuote($ciniki, $args['step_id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
@@ -70,7 +70,7 @@ function ciniki_tutorials_tutorialStepGet($ciniki) {
     } else {
         $strsql = "SELECT MAX(sequence) AS sequence "
             . "FROM ciniki_tutorial_steps "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND tutorial_id = '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'max');

@@ -9,13 +9,13 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_web_groupDetails($ciniki, $settings, $business_id, $permalink) {
+function ciniki_tutorials_web_groupDetails($ciniki, $settings, $tnid, $permalink) {
 
     $rsp = array('stat'=>'ok', 'group'=>array('image-id'=>'0', 'image-caption'=>'', 'content'=>''));
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
     $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_tutorial_settings', 
-        'business_id', $business_id, 'ciniki.tutorials', 'settings', 'group');
+        'tnid', $tnid, 'ciniki.tutorials', 'settings', 'group');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

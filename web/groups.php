@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_web_groups($ciniki, $settings, $business_id, $args) {
+function ciniki_tutorials_web_groups($ciniki, $settings, $tnid, $args) {
 
     $strsql = "SELECT DISTINCT ciniki_tutorial_tags.tag_name, "
         . "ciniki_tutorial_tags.permalink, "
@@ -18,13 +18,13 @@ function ciniki_tutorials_web_groups($ciniki, $settings, $business_id, $args) {
         . "INNER JOIN ciniki_tutorials ON ("
             . "ciniki_tutorial_tags.tutorial_id = ciniki_tutorials.id "
             . "AND (ciniki_tutorials.webflags&0x01) = 0x01 "
-            . "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_tutorial_settings ON ("
             . "ciniki_tutorial_settings.detail_key = CONCAT('group-sequence-', ciniki_tutorial_tags.permalink) "
-            . "AND ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_tutorial_tags.tag_type = 40 "
         . "ORDER BY tag_sequence+0, tag_name "
         . "";

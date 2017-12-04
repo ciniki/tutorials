@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_tutorials_web_tutorialList($ciniki, $settings, $business_id, $args) {
+function ciniki_tutorials_web_tutorialList($ciniki, $settings, $tnid, $args) {
 
     if( isset($args['group']) && $args['group'] != '' ) {
         $strsql = "SELECT ciniki_tutorials.id, "
@@ -24,18 +24,18 @@ function ciniki_tutorials_web_tutorialList($ciniki, $settings, $business_id, $ar
             . "INNER JOIN ciniki_tutorials ON ("
                 . "t1.tutorial_id = ciniki_tutorials.id "
                 . "AND (ciniki_tutorials.webflags&0x01) = 0x01 "
-                . "AND ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_tutorial_tags AS t2 ON ("
                 . "ciniki_tutorials.id = t2.tutorial_id "
-                . "AND t2.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND t2.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND t2.tag_type = 10 "
                 . ") "
             . "LEFT JOIN ciniki_tutorial_settings ON ("
                 . "ciniki_tutorial_settings.detail_key = CONCAT('category-sequence-', t2.permalink) "
-                . "AND t2.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND t2.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
-            . "WHERE t1.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE t1.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND t1.tag_type = 40 "
             . "AND t1.permalink = '" . ciniki_core_dbQuote($ciniki, $args['group']) . "' "
             . "ORDER BY cat_sequence, category, ciniki_tutorials.sequence, ciniki_tutorials.title "
@@ -63,15 +63,15 @@ function ciniki_tutorials_web_tutorialList($ciniki, $settings, $business_id, $ar
             . "FROM ciniki_tutorials "
             . "LEFT JOIN ciniki_tutorial_tags ON ("
                 . "ciniki_tutorials.id = ciniki_tutorial_tags.tutorial_id "
-                . "AND ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_tutorial_tags.tag_type = '10' "
                 . ") "
             . "LEFT JOIN ciniki_tutorial_settings ON ("
                 . "ciniki_tutorial_settings.detail_key = CONCAT('category-sequence-', ciniki_tutorial_tags.permalink) "
-                . "AND ciniki_tutorial_tags.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_tutorial_tags.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_tutorial_tags.tag_type = '10' "
                 . ") "
-            . "WHERE ciniki_tutorials.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND (ciniki_tutorials.webflags&0x01) = 0x01 "
             . "ORDER BY cat_sequence, category, ciniki_tutorials.sequence, ciniki_tutorials.title "
             . "";

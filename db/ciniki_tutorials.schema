@@ -8,7 +8,7 @@
 # ------
 # id:               The ID assigned to the tutorial.
 # uuid:             The Universal Unique ID.
-# business_id:      The business the tutorial is attached to.
+# tnid:             The tenant the tutorial is attached to.
 #
 # title:            The name for the tutorial.
 # permalink:        The permalink for the tutorial on the website
@@ -30,7 +30,7 @@
 create table ciniki_tutorials (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     title varchar(150) not null,
     permalink varchar(150) not null,
     sequence tinyint unsigned not null,
@@ -42,5 +42,5 @@ create table ciniki_tutorials (
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
-    index sync (business_id, uuid, last_updated)
+    index sync (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

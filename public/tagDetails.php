@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to get the list from.
+// tnid:     The ID of the tenant to get the list from.
 // 
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_tutorials_tagDetails($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'tag_type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
         'tag'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tag'),
         )); 
@@ -30,10 +30,10 @@ function ciniki_tutorials_tagDetails($ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tutorials', 'private', 'checkAccess');
-    $rc = ciniki_tutorials_checkAccess($ciniki, $args['business_id'], 'ciniki.tutorials.tagDetails'); 
+    $rc = ciniki_tutorials_checkAccess($ciniki, $args['tnid'], 'ciniki.tutorials.tagDetails'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -55,7 +55,7 @@ function ciniki_tutorials_tagDetails($ciniki) {
     }
 
     $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_tutorial_settings', 
-        'business_id', $args['business_id'], 'ciniki.tutorials', 'settings', $tag_type);
+        'tnid', $args['tnid'], 'ciniki.tutorials', 'settings', $tag_type);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

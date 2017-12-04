@@ -165,7 +165,7 @@ function ciniki_tutorials_main() {
             return this.data[s];
         };
         this.tutorial.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.tutorials.tutorialHistory', 'args':{'business_id':M.curBusinessID, 
+            return {'method':'ciniki.tutorials.tutorialHistory', 'args':{'tnid':M.curTenantID, 
                 'tutorial_id':this.tutorial_id, 'field':i}};
         }
         this.tutorial.addDropImage = function(iid) {
@@ -177,7 +177,7 @@ function ciniki_tutorials_main() {
             return true;
         };
         this.tutorial.cellValue = function(s, i, j, d) {
-            if( (M.curBusiness.modules['ciniki.tutorials'].flags&0x01) > 0 ) {
+            if( (M.curTenant.modules['ciniki.tutorials'].flags&0x01) > 0 ) {
                 return '<span class="maintext">' + d.step.number + ': ' + d.step.title + '</span><span class="subtext">' + d.step.code + '</span>';
             }
             return d.step.title;
@@ -223,10 +223,10 @@ function ciniki_tutorials_main() {
         };
         this.step.fieldHistoryArgs = function(s, i) {
             if( i == 'code' || i == 'title' || i == 'content' ) {
-                return {'method':'ciniki.tutorials.tutorialStepContentHistory', 'args':{'business_id':M.curBusinessID, 
+                return {'method':'ciniki.tutorials.tutorialStepContentHistory', 'args':{'tnid':M.curTenantID, 
                     'content_id':this.step_content_id, 'field':i}};
             }
-            return {'method':'ciniki.tutorials.tutorialStepHistory', 'args':{'business_id':M.curBusinessID, 
+            return {'method':'ciniki.tutorials.tutorialStepHistory', 'args':{'tnid':M.curTenantID, 
                 'step_id':this.step_id, 'field':i}};
         }
         this.step.addDropImage = function(iid) {
@@ -240,7 +240,7 @@ function ciniki_tutorials_main() {
         this.step.liveSearchCb = function(s, i, value) {
             if( i == 'code' || i == 'title' ) {
                 var rsp = M.api.getJSONBgCb('ciniki.tutorials.tutorialStepContentSearchField', 
-                    {'business_id':M.curBusinessID, 'start_needle':value, 'field':i, 'limit':25}, function(rsp) { 
+                    {'tnid':M.curTenantID, 'start_needle':value, 'field':i, 'limit':25}, function(rsp) { 
                         M.ciniki_tutorials_main.step.search_results = rsp.results;
                         M.ciniki_tutorials_main.step.liveSearchShow(s, i, M.gE(M.ciniki_tutorials_main.step.panelUID + '_' + i), rsp.results); 
                     });
@@ -309,14 +309,14 @@ function ciniki_tutorials_main() {
         //
         // Determine what is visible
         //
-        this.menu.sections.groups.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
-        this.menu.sections.groupexport.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
-        this.menu.sections.options.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'no':'yes';
-        this.menu.sections.categories.visible=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
-        this.tutorial.sections._groups.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
-        this.tutorial.sections._categories.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
-//      this.tutorial.sections.details.fields.permalink.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
-        this.step.sections.details.fields.code.active=(M.curBusiness.modules['ciniki.tutorials'].flags&0x01)>0?'yes':'no';
+        this.menu.sections.groups.visible=(M.curTenant.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+        this.menu.sections.groupexport.visible=(M.curTenant.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+        this.menu.sections.options.visible=(M.curTenant.modules['ciniki.tutorials'].flags&0x04)>0?'no':'yes';
+        this.menu.sections.categories.visible=(M.curTenant.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
+        this.tutorial.sections._groups.active=(M.curTenant.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+        this.tutorial.sections._categories.active=(M.curTenant.modules['ciniki.tutorials'].flags&0x02)>0?'yes':'no';
+//      this.tutorial.sections.details.fields.permalink.active=(M.curTenant.modules['ciniki.tutorials'].flags&0x04)>0?'yes':'no';
+        this.step.sections.details.fields.code.active=(M.curTenant.modules['ciniki.tutorials'].flags&0x01)>0?'yes':'no';
 
         this.menu.category = '';
         this.menu.group = '';
@@ -338,7 +338,7 @@ function ciniki_tutorials_main() {
             }
         }
         M.api.getJSONCb('ciniki.tutorials.tutorialList', 
-            {'business_id':M.curBusinessID, 'category':this.menu.category, 'group':this.menu.group, 'categories':'yes', 'groups':'yes'}, function(rsp) {
+            {'tnid':M.curTenantID, 'category':this.menu.category, 'group':this.menu.group, 'categories':'yes', 'groups':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -368,7 +368,7 @@ function ciniki_tutorials_main() {
 
     this.categoryEdit = function(cb, category) {
         if( category != null ) { this.category.permalink = category; }
-        M.api.getJSONCb('ciniki.tutorials.tagDetails', {'business_id':M.curBusinessID, 'tag_type':'10',
+        M.api.getJSONCb('ciniki.tutorials.tagDetails', {'tnid':M.curTenantID, 'tag_type':'10',
             'tag':this.category.permalink}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -385,7 +385,7 @@ function ciniki_tutorials_main() {
         var c = this.category.serializeForm('no');
         if( c != '' ) {
             M.api.postJSONCb('ciniki.tutorials.tagUpdate', 
-                {'business_id':M.curBusinessID, 'tag_type':'10', 'tag':this.category.permalink}, c, function(rsp) {
+                {'tnid':M.curTenantID, 'tag_type':'10', 'tag':this.category.permalink}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -399,7 +399,7 @@ function ciniki_tutorials_main() {
 
     this.groupEdit = function(cb, group) {
         if( group != null ) { this.group.permalink = group; }
-        M.api.getJSONCb('ciniki.tutorials.tagDetails', {'business_id':M.curBusinessID, 'tag_type':'40',
+        M.api.getJSONCb('ciniki.tutorials.tagDetails', {'tnid':M.curTenantID, 'tag_type':'40',
             'tag':this.group.permalink}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -416,7 +416,7 @@ function ciniki_tutorials_main() {
         var c = this.group.serializeForm('no');
         if( c != '' ) {
             M.api.postJSONCb('ciniki.tutorials.tagUpdate', 
-                {'business_id':M.curBusinessID, 'tag_type':'40', 'tag':this.group.permalink}, c, function(rsp) {
+                {'tnid':M.curTenantID, 'tag_type':'40', 'tag':this.group.permalink}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -431,7 +431,7 @@ function ciniki_tutorials_main() {
     this.tutorialEdit = function(cb, tid, category) {
         if( tid != null ) { this.tutorial.tutorial_id = tid; }
         M.api.getJSONCb('ciniki.tutorials.tutorialGet', 
-            {'business_id':M.curBusinessID, 'tutorial_id':this.tutorial.tutorial_id, 'categories':'yes', 'groups':'yes', 'steps':'yes'}, function(rsp) {
+            {'tnid':M.curTenantID, 'tutorial_id':this.tutorial.tutorial_id, 'categories':'yes', 'groups':'yes', 'steps':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -468,7 +468,7 @@ function ciniki_tutorials_main() {
 //              c += '&permalink=' + encodeURIComponent(this.tutorial.formValue('permalink'));
 //          }
             if( c != '' ) {
-                M.api.postJSONFormData('ciniki.tutorials.tutorialUpdate', {'business_id':M.curBusinessID, 
+                M.api.postJSONFormData('ciniki.tutorials.tutorialUpdate', {'tnid':M.curTenantID, 
                     'tutorial_id':this.tutorial.tutorial_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -482,7 +482,7 @@ function ciniki_tutorials_main() {
         } else {
             var c = this.tutorial.serializeForm('yes');
             M.api.postJSONFormData('ciniki.tutorials.tutorialAdd', 
-                {'business_id':M.curBusinessID}, c, function(rsp) {
+                {'tnid':M.curTenantID}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -495,7 +495,7 @@ function ciniki_tutorials_main() {
     this.tutorialDelete = function() {
         if( confirm('Are you sure you want to delete the tutorial \'' + this.tutorial.data.name + '\'?  All information about it will be removed and unrecoverable.') ) {
             M.api.getJSONCb('ciniki.tutorials.tutorialDelete', 
-                {'business_id':M.curBusinessID, 'tutorial_id':this.tutorial.tutorial_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'tutorial_id':this.tutorial.tutorial_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -510,7 +510,7 @@ function ciniki_tutorials_main() {
         if( list != null ) { this.step.prevnext.list = list; }
         if( M.ciniki_tutorials_main.tutorial.tutorial_id == 0 ) {
             var c = this.tutorial.serializeForm('yes');
-            M.api.postJSONFormData('ciniki.tutorials.tutorialAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONFormData('ciniki.tutorials.tutorialAdd', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -525,7 +525,7 @@ function ciniki_tutorials_main() {
     this.stepEditFinish = function(cb, tid) {
         if( tid != null ) { this.step.tutorial_id = tid; }
         M.api.getJSONCb('ciniki.tutorials.tutorialStepGet', 
-            {'business_id':M.curBusinessID, 'step_id':this.step.step_id, 'tutorial_id':this.step.tutorial_id}, function(rsp) {
+            {'tnid':M.curTenantID, 'step_id':this.step.step_id, 'tutorial_id':this.step.tutorial_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -556,7 +556,7 @@ function ciniki_tutorials_main() {
     this.refreshSteps = function() {
         if( M.ciniki_tutorials_main.tutorial.tutorial_id > 0 ) {
             M.api.getJSONCb('ciniki.tutorials.tutorialGet', 
-                {'business_id':M.curBusinessID, 'tutorial_id':M.ciniki_tutorials_main.tutorial.tutorial_id, 
+                {'tnid':M.curTenantID, 'tutorial_id':M.ciniki_tutorials_main.tutorial.tutorial_id, 
                 'steps':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -603,7 +603,7 @@ function ciniki_tutorials_main() {
             var c = this.step.serializeForm('no');
             if( c != '' ) {
                 c += '&step_content_id=' + encodeURIComponent(this.step.step_content_id);
-                M.api.postJSONFormData('ciniki.tutorials.tutorialStepUpdate', {'business_id':M.curBusinessID, 
+                M.api.postJSONFormData('ciniki.tutorials.tutorialStepUpdate', {'tnid':M.curTenantID, 
                     'step_id':this.step.step_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -619,7 +619,7 @@ function ciniki_tutorials_main() {
             c += '&step_content_id=' + encodeURIComponent(this.step.step_content_id);
             c += '&tutorial_id=' + this.step.tutorial_id;
             M.api.postJSONFormData('ciniki.tutorials.tutorialStepAdd', 
-                {'business_id':M.curBusinessID}, c, function(rsp) {
+                {'tnid':M.curTenantID}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -632,7 +632,7 @@ function ciniki_tutorials_main() {
     this.stepDelete = function() {
         if( confirm('Are you sure you want to delete step \'' + this.step.data.title + '\'?  All information about it will be removed and unrecoverable.') ) {
             M.api.getJSONCb('ciniki.tutorials.tutorialStepDelete', 
-                {'business_id':M.curBusinessID, 'step_id':this.step.step_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'step_id':this.step.step_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -657,7 +657,7 @@ function ciniki_tutorials_main() {
             this.export.group = group;
         }
         M.api.getJSONCb('ciniki.tutorials.tutorialList', 
-            {'business_id':M.curBusinessID, 'allcategories':'yes', 'group':this.export.group}, function(rsp) {
+            {'tnid':M.curTenantID, 'allcategories':'yes', 'group':this.export.group}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -685,7 +685,7 @@ function ciniki_tutorials_main() {
     };
 
     this.exportPDF = function(group) {
-        var args = {'business_id':M.curBusinessID, 'output':'pdf'};
+        var args = {'tnid':M.curTenantID, 'output':'pdf'};
         args['layout'] = this.export.formValue('layout');
         if( group != null ) {
             args['group'] = group;
