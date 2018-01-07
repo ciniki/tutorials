@@ -663,6 +663,7 @@ function ciniki_tutorials_main() {
                     return false;
                 }
                 var p = M.ciniki_tutorials_main.export;
+                console.log(rsp);
                 p.data = rsp;
                 if( rsp.categories != null ) {
                     for(var i in rsp.categories) {

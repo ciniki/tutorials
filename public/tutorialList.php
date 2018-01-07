@@ -74,7 +74,7 @@ function ciniki_tutorials_tutorialList($ciniki) {
                 . "AND t2.tag_type = '10' "
                 . ") "
             . "WHERE ciniki_tutorials.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "AND (ciniki_tutorials.webflags&0x01) = 0x01 "
+//            . "AND (ciniki_tutorials.webflags&0x01) = 0x01 "
             . "ORDER BY cat_sequence, category, ciniki_tutorials.sequence, ciniki_tutorials.title "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
