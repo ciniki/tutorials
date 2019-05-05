@@ -23,9 +23,10 @@ function ciniki_tutorials_hooks_uiSettings($ciniki, $tnid, $args) {
     // Check permissions for what menu items should be available
     //
     if( isset($ciniki['tenant']['modules']['ciniki.tutorials'])
-        && (isset($args['permissions']['owners'])
-            || isset($args['permissions']['employees'])
-            || isset($args['permissions']['resellers'])
+        && (isset($args['permissions']['ciniki.owners'])
+            || isset($args['permissions']['ciniki.employees'])
+            || isset($args['permissions']['ciniki.resellers'])
+            || isset($args['permissions']['ciniki.tutorials'])
             || ($ciniki['session']['user']['perms']&0x01) == 0x01
             )
         ) {
@@ -38,8 +39,8 @@ function ciniki_tutorials_hooks_uiSettings($ciniki, $tnid, $args) {
     } 
 
     if( isset($ciniki['tenant']['modules']['ciniki.tutorials'])
-        && (isset($args['permissions']['owners'])
-            || isset($args['permissions']['resellers'])
+        && (isset($args['permissions']['ciniki.owners'])
+            || isset($args['permissions']['ciniki.resellers'])
             || ($ciniki['session']['user']['perms']&0x01) == 0x01
             )
         ) {
