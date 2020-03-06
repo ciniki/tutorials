@@ -95,7 +95,6 @@ function ciniki_tutorials_tutorialAdd(&$ciniki) {
                 . "FROM ciniki_tutorials "
                 . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . "AND permalink = '" . ciniki_core_dbQuote($ciniki, $args['permalink']) . "' "
-                . "AND id <> '" . ciniki_core_dbQuote($ciniki, $args['tutorial_id']) . "' "
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tutorials', 'tutorial');
             if( $rc['stat'] != 'ok' ) {
