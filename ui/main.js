@@ -302,7 +302,7 @@ function ciniki_tutorials_main() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_tutorials_main', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         }
 
@@ -459,7 +459,7 @@ function ciniki_tutorials_main() {
         // Check form values
         var nv = this.tutorial.formFieldValue(this.tutorial.sections.details.fields.title, 'title');
         if( nv != this.tutorial.fieldValue('details', 'title') && nv == '' ) {
-            alert('You must specifiy a title');
+            M.alert('You must specifiy a title');
             return false;
         }
         if( this.tutorial.tutorial_id > 0 ) {
@@ -493,16 +493,16 @@ function ciniki_tutorials_main() {
     };
 
     this.tutorialDelete = function() {
-        if( confirm('Are you sure you want to delete the tutorial \'' + this.tutorial.data.name + '\'?  All information about it will be removed and unrecoverable.') ) {
+        M.confirm('Are you sure you want to delete the tutorial \'' + this.tutorial.data.name + '\'?  All information about it will be removed and unrecoverable.',null,function() {
             M.api.getJSONCb('ciniki.tutorials.tutorialDelete', 
-                {'tnid':M.curTenantID, 'tutorial_id':this.tutorial.tutorial_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'tutorial_id':M.ciniki_tutorials_main.tutorial.tutorial_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
                     }
                     M.ciniki_tutorials_main.tutorial.close();
                 });
-        }
+        });
     };
 
     this.stepEdit = function(cb, sid, tid, list) {
@@ -596,7 +596,7 @@ function ciniki_tutorials_main() {
         // Check form values
         var nv = this.step.formFieldValue(this.step.sections.details.fields.title, 'title');
         if( nv != this.step.fieldValue('details', 'title') && nv == '' ) {
-            alert('You must specifiy a title');
+            M.alert('You must specifiy a title');
             return false;
         }
         if( this.step.step_id > 0 ) {
@@ -630,16 +630,16 @@ function ciniki_tutorials_main() {
     };
 
     this.stepDelete = function() {
-        if( confirm('Are you sure you want to delete step \'' + this.step.data.title + '\'?  All information about it will be removed and unrecoverable.') ) {
+        M.confirm('Are you sure you want to delete step \'' + this.step.data.title + '\'?  All information about it will be removed and unrecoverable.',null,function() {
             M.api.getJSONCb('ciniki.tutorials.tutorialStepDelete', 
-                {'tnid':M.curTenantID, 'step_id':this.step.step_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'step_id':M.ciniki_tutorials_main.step.step_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
                     }
                     M.ciniki_tutorials_main.step.close();
                 });
-        }
+        });
     };
 
     this.exportShow = function(cb, title, group) {
