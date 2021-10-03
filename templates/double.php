@@ -13,7 +13,7 @@
 function ciniki_tutorials_templates_double($ciniki, $tnid, $categories, $args) {
 
     require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/tcpdf/tcpdf.php');
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheOriginal');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheJPEG');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'tenantDetails');
 
     //
@@ -128,7 +128,7 @@ function ciniki_tutorials_templates_double($ciniki, $tnid, $categories, $args) {
             //
             if( $page['image_id'] > 0 ) {
                 $this->SetX($offset);
-                $rc = ciniki_images_loadCacheOriginal($ciniki, $tnid, $page['image_id'], 2000, 2000);
+                $rc = ciniki_images_loadCacheJPEG($ciniki, $tnid, $page['image_id'], 2000, 2000);
                 if( $rc['stat'] == 'ok' ) {
                     $image = $rc['image'];
                     $this->SetLineWidth(0.25);
@@ -221,7 +221,7 @@ function ciniki_tutorials_templates_double($ciniki, $tnid, $categories, $args) {
         if( isset($args['coverpage-image']) && $args['coverpage-image'] > 0 ) {
             $img_box_width = 180;
             $img_box_height = 150;
-            $rc = ciniki_images_loadCacheOriginal($ciniki, $tnid, $args['coverpage-image'], 2000, 2000);
+            $rc = ciniki_images_loadCacheJPEG($ciniki, $tnid, $args['coverpage-image'], 2000, 2000);
             if( $rc['stat'] == 'ok' ) {
                 $image = $rc['image'];
                 $pdf->SetLineWidth(0.25);
