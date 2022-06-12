@@ -245,7 +245,7 @@ function ciniki_tutorials_templates_single($ciniki, $tnid, $categories, $args) {
             // 
             // Add introduction to tutorial
             //
-            $pdf->AddMyPage($ciniki, $tnid, ($tutorial_num==1?$category['name']:''), $tutorial['title'], $tutorial['image_id'], '', strip_tags($tutorial['content']));
+            $pdf->AddMyPage($ciniki, $tnid, ($tutorial_num==1&&isset($category['name'])?$category['name']:''), $tutorial['title'], $tutorial['image_id'], '', strip_tags($tutorial['content']));
 
             $step_num = 1;
             if( isset($tutorial['steps']) ) {
